@@ -1,10 +1,10 @@
 venv/
-apis/assets/eodag.yaml
+/apis/assets/eodag.yaml
 apis/datenbank.json
 apis/downloads/copernicus/
 downloads/
 nutzer_leserechte.sql
 app/datenbank.json
 klimatrier.tar
-*cpython
-*pyc
+*.cpython
+*.pyc
