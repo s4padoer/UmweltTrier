@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS klimatrier;
+CREATE DATABASE klimatrier;
