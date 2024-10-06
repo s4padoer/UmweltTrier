@@ -6,3 +6,5 @@ downloads/
 nutzer_leserechte.sql
 app/datenbank.json
 klimatrier.tar
+*cpython
+*pyc
