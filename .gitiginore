@@ -1,5 +1,5 @@
 venv/
-/apis/assets/eodag.yaml
+apis/assets/eodag.yaml
 apis/datenbank.json
 apis/downloads/copernicus/
 downloads/
