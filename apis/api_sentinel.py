@@ -4,9 +4,10 @@ from collections import defaultdict
 
 import rasterio.warp
 from eodag import EODataAccessGateway
-from shapely.geometry import shape, mapping
+from shapely.geometry import shape
 from shapely import wkt, box
 import rasterio
+from rasterio.windows import from_bounds, transform
 from rasterio.mask import mask
 from rasterio.warp import calculate_default_transform, reproject, Resampling
 from rasterio.features import geometry_mask
@@ -23,6 +24,8 @@ import shutil
 import geopandas as gpd
 
 from write_to_database import write_to_database
+from load_data import get_engine
+
 #############################################
 # Laden der Parameter
 #############################################
@@ -31,8 +34,6 @@ with open('assets/eodag.yaml', 'r') as config_file:
     config = yaml.safe_load(config_file)
     config_string = yaml.dump(config)
 
-
-from load_data import get_engine
 engine = get_engine()
 
 with engine.connect() as conn:
@@ -67,8 +68,6 @@ geometry = shape(geojson['features'][0]['geometry'])
 wkt_string = wkt.dumps(geometry)
 
 
-# Transformer erstellen
-transformer = Transformer.from_crs("EPSG:4326", "EPSG:32632", always_xy=True)
 
 ##########################################################
 # Definiere Funktionen
@@ -93,65 +92,79 @@ def calculate_ndvi(red_band_path, nir_band_path):
         # Bänder laden und NDVI berechnen
     with rasterio.open(red_band_path) as red:
         red_band = red.read(1)
-        src_transform = red.transform
-        src_crs = red.crs
         profile = red.profile.copy()
+        bbox = red.bounds
     with rasterio.open(nir_band_path) as nir:
         nir_band = nir.read(1)
         
        # NDVI berechnen
     ndvi = (nir_band.astype(float) - red_band.astype(float)) / (nir_band + red_band)
     scaled_data = ((-ndvi + 1) / 2 * 65535).astype(np.uint16)
-
-    # Reprojektion und Masking
-    dst_crs = pyproj.CRS.from_epsg(4326)  # Ziel-CRS (WGS84)
+    return scaled_data, profile, bbox
     
+def reproject_image_data(scaled_data, profile, bbox, ausschnitt):
+    # Reprojektion und Masking
+    dst_crs = pyproj.CRS.from_epsg(4326) 
+    # Die Aufloesung hatten die Bilder in meinen ersten Downloads
+    target_height, target_width = 917, 1167
+    if len(scaled_data.shape) == 3:
+        src_height, src_width = scaled_data.shape[2], scaled_data.shape[1]
+    elif len(scaled_data.shape) == 2:
+        src_height, src_width = scaled_data.shape[1], scaled_data.shape[0]
+        
     # Berechnen der Transformation für das gesamte Bild
     full_dst_transform, full_dst_width, full_dst_height = calculate_default_transform(
-        src_crs, dst_crs, red_band.shape[1], red_band.shape[0], *rasterio.transform.array_bounds(red_band.shape[0], red_band.shape[1], src_transform)
+        profile["crs"], dst_crs, src_width, src_height, 
+        dst_height=src_height, dst_width=src_width,
+        left=bbox.left, right=bbox.right, bottom=bbox.bottom, top = bbox.top
     )
+    
     
     # Reprojektion des gesamten Bildes
     full_resampled = np.zeros((1, full_dst_height, full_dst_width), dtype=np.uint16)
     reproject(
         source=scaled_data,
         destination=full_resampled,
-        src_transform=src_transform,
-        src_crs=src_crs,
+        src_transform=profile["transform"],
+        src_crs=profile["crs"],
         dst_transform=full_dst_transform,
         dst_crs=dst_crs,
         resampling=Resampling.bilinear
     )
-
-    return full_resampled, full_dst_transform, profile
-
-def write_image(image_data, transform, geometry, profile, filepath):    
+    kwargs = profile.copy()
+    kwargs["crs"] = dst_crs
+    kwargs["transform"] = full_dst_transform
+    
+    # Führen Sie den Masking-Prozess 
     with rasterio.io.MemoryFile() as memfile:
         with memfile.open(driver='GTiff', 
-                      height=image_data.shape[1], 
-                      width=image_data.shape[2], 
+                      height=full_resampled.shape[1], 
+                      width=full_resampled.shape[2], 
                       count=1, 
-                      dtype=image_data.dtype, 
-                      crs=profile['crs'], 
-                      transform=transform) as dataset:
-            dataset.write(image_data[0], 1)
-    
-        with memfile.open() as dataset:
-            out_image, out_transform = mask(dataset, [geometry], crop=False, all_touched=True)
+                      dtype=full_resampled.dtype, 
+                      crs=kwargs['crs'], 
+                      transform=kwargs["transform"]) as dataset:
+            dataset.write(full_resampled[0], 1)
             
-        # Erstellen Sie das Profil für die Ausgabedatei
-    profile.update({
-            'driver': 'GTiff',
-            'height': out_image.shape[1],
-            'width': out_image.shape[2],
-            'transform': out_transform,
-            'dtype': 'uint16',
-            'count': 1,
-            'compress': 'lzw'
-    })
+        with memfile.open() as src:
+            out_image, out_transform = mask(src, [geometry], nodata=65535, crop=True, 
+                                            all_touched=False, pad=True, pad_width=1)
+        print(out_image.shape)
         
+    # Aktualisieren Sie die Metadaten
+    kwargs.update({
+        "nodata": 65535,
+        "height": out_image.shape[1],
+        "width": out_image.shape[2],
+        "transform": out_transform
+    })
+
+    return out_image, kwargs
+
+def write_image(image_data, profile, filepath):  
+    profile["driver"] = "GTiff"          
     with rasterio.open(filepath, 'w', **profile) as dst:
-        dst.write(out_image[0], 1)
+        dst.write(image_data[0], 1)
     
     
 ##########################################################
@@ -195,10 +208,10 @@ for result in search_results:
     download_name = os.path.basename(product_path)
     match = re.search(pattern, download_name.split("_")[-1])
     # NDVI speichern als GeoTIFF
-    ndvi_image, transform, profile = calculate_ndvi(re, nir_band_path, match.group(1))
+    ndvi_image, profile, bbox = calculate_ndvi(red_band_path, nir_band_path)
     ndvi_output_path = os.path.join(download_pfad, f"ndvi_{match.group(1)}.tif")
-
-    write_image(ndvi_image, transform, geometry, profile, ndvi_output_path)    
+    ndvi_reprojected, profile_reprojected = reproject_image_data(ndvi_image, profile, bbox, geometry)
+    write_image(ndvi_reprojected, profile_reprojected, ndvi_output_path)    
     product_path = product_path.replace(os.path.basename(product_path), "")
     shutil.rmtree(product_path)
 
@@ -221,33 +234,7 @@ def get_date_from_filename(filename):
         print("Formatierungsfehler")
     
 
-def read_and_align_tiff(file_path, ref_transform, polygon, target_shape=(917, 1167)):
-    with rasterio.open(file_path) as src:
-        data = src.read(1)
-        profile = src.profile
-        dst_data = np.zeros( (1,target_shape[0], target_shape[1]), dtype=np.uint16)
-        
-        reproject(
-            source=data,
-            destination=dst_data,
-            src_transform=src.transform,
-            src_crs=src.crs,
-            dst_transform=ref_transform,
-            dst_crs=src.crs,
-            dst_shape=target_shape,
-            resampling=Resampling.bilinear
-        )
-        
-        mask = geometry_mask([polygon], out_shape=target_shape, transform=ref_transform, invert=True)
-        
-        # Anwenden der Maske
-        shape = dst_data.shape
-        dst_data = np.where(mask, dst_data[0], 65535)  # oder verwenden Sie einen anderen NoData-Wert anstelle von np.nan
-        dst_data = dst_data.reshape(shape)
-        profile["width"] = target_shape[0]
-        profile["height"] = target_shape[1]
-        profile["transform"] = ref_transform
-        return dst_data, profile
+
 
 def get_reference_bounds(geojson_path):
     gdf = gpd.read_file(geojson_path)
