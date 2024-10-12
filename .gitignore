@@ -1,0 +1,13 @@
+klimatrier.tar
+apis/datenbank.json
+app/datenbank.json
+nutzer_leserechte.sql
+apis/assets/eodag.yaml
+apis/__pycache__/
+app/__pycache__/
+apis/downloads/
+app/layouts/__pycache__/
+app/figures/__pycache__/
+first_edits/
+downloads/
+venv/
