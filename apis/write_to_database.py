@@ -26,7 +26,7 @@ def write_to_database(file_path):
     # Schritt 1: Temporäres SQL-Skript erstellen
     temp_sql_file = 'temp_raster.sql'
     raster2pgsql_command = (
-        f"raster2pgsql -s 4326 -t {shape[0]}x{shape[1]} -F -I -C -M -b 1 {os.path.relpath(file_path)} public.ndvi > {temp_sql_file}"
+        f"raster2pgsql -s 4326 -t {shape[1]}x{shape[0]} -F -I -C -M -b 1 {os.path.relpath(file_path)} public.ndvi > {temp_sql_file}"
     )
     
     subprocess.run(raster2pgsql_command, shell=True, check=True)
