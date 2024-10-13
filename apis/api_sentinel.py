@@ -28,7 +28,7 @@ from load_data import get_engine
 # Laden der Parameter
 #############################################
 # Laden der separaten YAML-Datei
-with open('assets/eodag.yaml', 'r') as config_file:
+with open('apis/assets/eodag.yaml', 'r') as config_file:
     config = yaml.safe_load(config_file)
     config_string = yaml.dump(config)
 
@@ -58,7 +58,7 @@ last_day = calendar.monthrange(startdate.year, startdate.month)[1]
 enddate = dt.date(year, nextMonth, last_day)
 
 # Geodaten laden
-with open('assets/trier.geojson', 'r') as f:
+with open('apis/assets/trier.geojson', 'r') as f:
     geojson = json.load(f)
     
 # Geometrie extrahieren und in Shapely-Objekt umwandeln
@@ -237,10 +237,15 @@ def get_date_from_filename(filename):
     except:
         print("Formatierungsfehler")
     
-    
+
 # Hauptschleife fuer den Mittelwert
 for file in files:
-    if not file.endswith(".tif") or not file.startswith("ndvi_"):
+    year_month = str(year)
+    if nextMonth<10:
+        year_month += f"0{nextMonth}"
+    else:
+        year_month += str(nextMonth)
+    if not file.endswith(".tif") or not file.startswith(f"ndvi_{year_month}"):
         print(f"{file} nicht verarbeitet")
         continue
     
@@ -266,3 +271,6 @@ for year_month, data_list in dic.items():
     # Schreibe in die Datenbank:
     write_to_database(output_file)
 
+for file in files:
+    file_path = os.path.join(download_pfad, file)
+    os.remove(file_path)
