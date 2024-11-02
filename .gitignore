@@ -11,3 +11,4 @@ app/figures/__pycache__/
 first_edits/
 downloads/
 venv/
+apis/tomtom.json
