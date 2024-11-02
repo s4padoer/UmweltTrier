@@ -96,8 +96,10 @@ for quadruple in lastDate:
              "produkt_ident" : [4], 
              "wert": [wert]
              })
-         summary_pd = pd.concat([summary_pd, single_pd], ignore_index=True)
-         counter=counter+1
+         single_pd.dropna(inplace = True)
+         if single_pd.shape[0] > 0:
+            summary_pd = pd.concat([summary_pd, single_pd], ignore_index=True)
+            counter=counter+1
 
 summary_pd.dropna(inplace=True)
 summary_pd.to_sql("luftqualitaet", engine, if_exists="append", index=False)
