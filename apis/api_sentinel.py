@@ -41,7 +41,7 @@ with engine.connect() as conn:
         result = conn.execute(text("SELECT MAX(ident) FROM ndvi"))
         lastIdent = result.fetchone()[0]
 
-heute = dt.datetime.now().date
+heute = dt.datetime.now().date()
 
 if lastDate[1] == 12:
     nextMonth = 1
