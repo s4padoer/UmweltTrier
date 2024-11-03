@@ -9,9 +9,9 @@ import datetime as dt
 from load_data import get_engine
 
 # Wetterstationen des Umweltbundesamtes laden:
-query = text(""" SELECT * FROM wetterstation
-             WHERE dienst_ident = 4;
-             """)
+query = text(""" SELECT wetterstation.* FROM wetterstation 
+                 JOIN dienst ON wetterstation.dienst_ident = dienst.ident WHERE dienst.kurzname = 'tomtom'
+            """)
 
 engine = get_engine()
 wetterstationen = pd.read_sql_query(query, engine)
