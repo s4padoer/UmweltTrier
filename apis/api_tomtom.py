@@ -34,7 +34,7 @@ zoom = 20
 all_results = None
 
 for i,row in wetterstationen.iterrows():
-    point = (row["geo_breite"], row["geo_laenge"]) # Zurlauben, Kaiser-Wilhelm-Brücke
+    point = (row["geo_breite"], row["geo_laenge"]) 
     f = "json"
 
     # Request:
@@ -57,11 +57,11 @@ def ordne_zu_wetterstation(results, wetterstationen):
             
 results = ordne_zu_wetterstation(all_results, wetterstationen) 
 results = results.loc[:, ~results.columns.isin(["frc", "coordinates","@version"])]
-results["zeitpunkt"] = timestamp
+results.loc[:,["zeitpunkt"]] = timestamp
 
-results["speed_einheit_ident"] = einheiten["ident"][einheiten["kuerzel"]== 'km/h'].iloc[0]
-results["traveltime_einheit_ident"] = einheiten["ident"][einheiten["kuerzel"]== 's'].iloc[0]
-results["produkt_ident"] = produkt.ident.iloc[0]
+results.loc[:,["speed_einheit_ident"]] = einheiten["ident"][einheiten["kuerzel"]== 'km/h'].iloc[0]
+results.loc[:,["traveltime_einheit_ident"]] = einheiten["ident"][einheiten["kuerzel"]== 's'].iloc[0]
+results.loc[:,["produkt_ident"]] = produkt.ident.iloc[0]
 results.columns = results.columns.str.lower()
 
 results.to_sql('verkehr', engine, if_exists='append', index=False)
