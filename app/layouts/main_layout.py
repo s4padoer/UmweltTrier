@@ -1,5 +1,5 @@
 from dash import html, dcc
-from figures.figure_temperatur import get_timeseries_temperatur
+from figures.figure_wetterdienst import get_timeseries_temperatur
 from figures.figure_luftqualitaet import get_luftqualitaet_plot
 from figures.figure_moselwasser import update_moseltemperatur_und_fisch
 
