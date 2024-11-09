@@ -38,7 +38,7 @@ wetterstation_petrisberg = wetterstationen["ident"][wetterstationen["stationid"]
 wetterstation_zewen = wetterstationen["ident"][wetterstationen["stationid"] == "5099"].to_numpy()[0]
  
  
-startDate = dt.datetime(2024,1,1,0,0,1) #lastDate + dt.timedelta(days=1)
+startDate = lastDate + dt.timedelta(days=1)
 
 gestern = dt.datetime.now() - dt.timedelta(days=1)
 
