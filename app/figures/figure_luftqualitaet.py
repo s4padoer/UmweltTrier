@@ -156,7 +156,7 @@ def get_luftqualitaet_plot():
         text="Datenquelle:\nUmweltbundesamt",
         xref="paper",
         yref="paper",
-        x=0.95, y=0.05, # x,y coordinates (0,0) is bottom left
+        x=0.95, y=-0.1, # x,y coordinates (0,0) is bottom left
         showarrow=False, # No arrow
         font=dict(size=12) # Font size
     )

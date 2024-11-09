@@ -46,7 +46,7 @@ def create_empty_ndvi_figure():
             range = [-1, 1],  # Setzen Sie den y-Achsenbereich auf -1 bis 1 für NDVI
             title = 'NDVI'
         ),
-        title="NDVI im Jahresverlauf",
+        title="NDVI im Jahresverlauf am ausgewählten Punkt",
         showlegend = False
     )
     

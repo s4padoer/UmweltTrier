@@ -45,13 +45,17 @@ def get_map_layout(ndvi_figure):
     map = get_map()
     map_layout = html.Div([
     dcc.Location(id='url', refresh=False),
-    html.H1('Karte von Trier'),
+    html.H1('Karte von Trier mit den Wetterstationen'),
     map,
     html.Div(id={'type': SITE_ID, 'page': 'karte'}),
     dcc.Loading(
     id="loading-ndvi",
     type="default",
-    children=[dcc.Graph(id=NDVI_ID, figure=ndvi_figure)]
+    children=[html.Div([
+        html.H2("Vegetationsindex"),
+        dcc.Graph(id=NDVI_ID, figure=ndvi_figure)
+        ])
+    ]
     ),
     html.Br(),
     dcc.Link('Zurück zur Hauptseite', href='/', className='button')
