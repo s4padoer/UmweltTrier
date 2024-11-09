@@ -1,7 +1,7 @@
 import json
 from sqlalchemy import create_engine
 
-with open("apis/datenbank.json", "r") as configfile:
+with open("datenbank.json", "r") as configfile:
     config = json.load(configfile)
 
 
