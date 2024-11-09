@@ -10,7 +10,7 @@ def get_ndvi_hist(lat, lon, fig):
             SELECT ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geom
         )
         SELECT 
-            ST_Value(rast, 1, point.geom)/32767.5-1 AS ndvi_value,
+            1-ST_Value(rast, 1, point.geom)/32767.5 AS ndvi_value,
             jahr,
             monat,
             ident
