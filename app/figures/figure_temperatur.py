@@ -14,24 +14,30 @@ def get_referenzdata():
     avg_referenz = referenz.groupby(["monat", "tag"])["wert"].mean().to_frame()
     avg_referenz = avg_referenz.reset_index()
     avg_referenz["zeitpunkt"] = pd.to_datetime(dict(year = 2024, month=avg_referenz["monat"], day = avg_referenz["tag"])) 
-    return avg_referenz
+    
+    referenz_query = text("SELECT * FROM referenz_niederschlag")
+    referenz = pd.read_sql_query(referenz_query, engine)
+    # Zwei Wetterstationen j- also immer zwei werte...
+    avg_referenz2 = referenz.groupby(["monat", "tag"])["wert"].mean().to_frame()
+    avg_referenz2 = avg_referenz.reset_index()
+    avg_referenz2["zeitpunkt"] = pd.to_datetime(dict(year = 2024, month=avg_referenz["monat"], day = avg_referenz["tag"])) 
+    return avg_referenz, avg_referenz2
 
 
-def get_referenzplot():
-    referenzdata = get_referenzdata()
-    currentdata = get_currentdata()
-    fig = make_subplots()
-    fig.add_trace(
-        go.Scatter(
-            x=referenzdata["zeitpunkt"], y = referenzdata["wert"],
-            name="Durchschnittl. Tagestemperatur während Referenzzeitraums 1961-1990",
-            line=dict(color="red"),
-            hovertemplate='%{x}<br>%{y:.1f} °C<extra></extra>',
-        )
-    )
+def get_timeseries_temperatur():
+    referenzdata_temp, referenzdata_percip = get_referenzdata()
+    currentdata_temp, currentdata_percip = get_currentdata()
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.update_xaxes(tickformat="%d.%m.%y")
-    fig.update_yaxes(title_text="°Celsius")
-    fig.update_layout(title_text="Tagestemperatur 2024",
+    fig.update_yaxes(
+        title_text='Temperatur in °C',
+        secondary_y=False,
+    )
+    fig.update_yaxes(
+        title_text='Niederschlagsmenge in mm',
+        secondary_y=True,
+    )
+    fig.update_layout(title_text="Tagestemperatur und Niederschlagsmenge 2024",
                     legend=dict(
                     orientation="h",  # Horizontale Ausrichtung
                     yanchor="bottom",
@@ -41,6 +47,37 @@ def get_referenzplot():
                     )
     )
     
+    fig.add_trace(
+        go.Scatter(
+            x=referenzdata_temp["zeitpunkt"], y = referenzdata_temp["wert"],
+            name="Durchschnittl. Tagestemperatur während Referenzzeitraum 1961-1990",
+            line=dict(color="purple", dash="dash"),
+            hovertemplate='%{x}<br>%{y:.1f} °C<extra></extra>',
+        ),
+        secondary_y=False
+    )
+    fig.add_trace(
+        go.Scatter(x=currentdata_temp["zeitpunkt"], y=currentdata_temp["wert"],
+                   line=dict(color="red"), name="Durchschnittl. Tagestemperatur 2024",
+                   hovertemplate="%{x}<br>%{y:.1f} °C<extra></extra>"),
+        secondary_y=False
+    )
+    
+    fig.add_trace(
+        go.Scatter(
+            x=referenzdata_percip["zeitpunkt"], y = referenzdata_percip["wert"],
+            name="Tagesniederschlag während Referenzzeitraum 1961-1990",
+            line=dict(color="lightblue", dash="dash"),
+            hovertemplate='%{x}<br>%{y:.1f} mm<extra></extra>',
+        ),
+        secondary_y=True
+    )
+    fig.add_trace(
+        go.Scatter(x=currentdata_percip["zeitpunkt"], y=currentdata_percip["wert"],
+                   line=dict(color="blue"), name="Tagesniederschlag 2024",
+                   hovertemplate="%{x}<br>%{y:.1f} mm<extra></extra>"),
+        secondary_y=True
+    )
     fig.add_annotation(
         text="Datenquelle:\nDeutscher Wetterdienst",
         xref="paper",
@@ -48,11 +85,6 @@ def get_referenzplot():
         x=0.95, y=0.05, # x,y coordinates (0,0) is bottom left
         showarrow=False, # No arrow
         font=dict(size=12) # Font size
-    )
-    fig.add_trace(
-        go.Scatter(x=currentdata["zeitpunkt"], y=currentdata["wert"],
-                   line=dict(color="blue"), name="Durchschnittl. Tagestemperatur 2024",
-                   hovertemplate="%{x}<br>%{y:.1f} °C<extra></extra>")
     )
     return fig
     
@@ -63,18 +95,15 @@ def get_currentdata():
     df = pd.read_sql_query(temperatur_query, engine)
     avg_temp = df.groupby(["zeitpunkt"])["wert"].mean().to_frame()
     avg_temp = avg_temp.reset_index()
-    return avg_temp
-    
-    
-def get_timeseries_temperatur():
-    referenzplot = get_referenzplot()
-    currentdata = get_currentdata()
-    tempplot = px.line(currentdata, x='zeitpunkt', y='wert', title='Temperatur in Trier 2024')
-    referenzplot.add_trace(go.Scatter(x=tempplot.data[0]['x'], y=tempplot.data[0]['y'], name='Messdaten 2024', mode='lines', line=dict(color='blue')))
-    return referenzplot
+    percip_query = text("SELECT * FROM niederschlag")
+    df = pd.read_sql_query(percip_query, engine)
+    avg_percip = df.groupby(["zeitpunkt"])["wert"].mean().to_frame()
+    avg_percip = avg_percip.reset_index()
+    return avg_temp, avg_percip
 
 
 def update_figure(temperatur_figure):
-    avg_temp = get_currentdata()
+    avg_temp, avg_percip = get_currentdata()
     temperatur_figure.update_traces(selector=dict(name = 'Durchschnittl. Tagestemperatur 2024'), x=avg_temp['zeitpunkt'], y=avg_temp['wert'])
+    temperatur_figure.update_traces(selector=dict(name = "Tagesniederschlag 2024"), x=avg_percip['zeitpunkt'], y=avg_temp['wert'])
 
