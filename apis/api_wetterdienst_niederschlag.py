@@ -75,7 +75,7 @@ for result in stations.values.query():
     df_niederschlag = df_niederschlag.with_columns(
         wetterstation_ident=df_niederschlag["station_id"].map_elements(lambda x: wetterstation_petrisberg if x =='05100' else wetterstation_zewen, return_dtype=int),
         produkt_ident = produkt.ident.iloc[0],
-        niederschlagsart_ident = df_niederschlag["niederschlagsart_code"].map_elements(lambda x: map_niederschlagsart(x, niederschlagsart)))
+        niederschlagsart_ident = df_niederschlag["niederschlagsart_code"].map_elements(lambda x: map_niederschlagsart(x, niederschlagsart), return_dtype=int))
     
     df_niederschlag = df_niederschlag.drop(["station_id", "niederschlagsart_code"])
     df = df_niederschlag.to_pandas()
