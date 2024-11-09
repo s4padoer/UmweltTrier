@@ -13,13 +13,19 @@ def get_main_layout():
     layout = html.Div([
         dcc.Location(id='url', refresh=False),
         html.H1('Klimadaten für Trier'),
-        dcc.Graph(id='temperatur-graph', figure=temperatur_plot),
+        html.Div([
+            html.H2('Temperatur und Niederschlag'),
+            dcc.Graph(id='temperatur-graph', figure=temperatur_plot),
+        ]),
         html.Div([
             html.H2('Aktuelle Mosel-Temperatur:'),
             html.H3(mosel_temp),  # Temperatur direkt setzen
             html.Img(src=fisch_image, style={'width': '100px', 'height': '100px'})  # Fischbild direkt setzen
         ]),
-        dcc.Graph(id="luftqualitaet-graph", figure=luftqualitaet_plot),
+        html.Div([
+            html.H2('Luftqualität:'),
+            dcc.Graph(id="luftqualitaet-graph", figure=luftqualitaet_plot),
+        ]),
         html.Br(),
         dcc.Link('Zur Karte', href='/karte', className='button')
     ])
