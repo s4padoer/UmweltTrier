@@ -5,6 +5,7 @@ import requests
 from sqlalchemy import text
 import pandas as pd
 import datetime as dt
+import os
 
 from load_data import get_engine
 
@@ -21,8 +22,9 @@ query = text(""" SELECT * FROM einheit WHERE kuerzel IN ('s', 'km/h')
 einheiten = pd.read_sql_query(query, engine)
 produkt = pd.read_sql_query(text("SELECT * FROM produkt WHERE kurzname = 'Traffic API'"), engine)
 
+pfad_tomtom = os.path.join(os.path.dirname(__file__), "tomtom.json")
 
-with open("apis/tomtom.json", "r") as configfile:
+with open(pfad_tomtom, "r") as configfile:
     tomtom_access = json.load(configfile)
     key = tomtom_access["key"]
 

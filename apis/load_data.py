@@ -1,9 +1,11 @@
 import json
+import os
 from sqlalchemy import create_engine
 
-with open("datenbank.json", "r") as configfile:
-    config = json.load(configfile)
+pfad = os.path.join(os.path.dirname(__file__), "datenbank.json")
 
+with open(pfad, "r") as configfile:
+    config = json.load(configfile)
 
 def get_engine():
     databaseurl = "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(

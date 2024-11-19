@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import datetime as dt
 from sqlalchemy import text
-from  load_data import get_engine
+from load_data import get_engine
 
 url = "https://www.pegelonline.wsv.de/webservices/files/Wassertemperatur+Rohdaten/MOSEL/abd34ee6-a578-4639-b73d-fa4e08f40345"
 
@@ -28,7 +28,7 @@ while datum < gestern:
     response = requests.get(completeUrl, allow_redirects=True)
     
     if response.status_code == 200:
-        filename = f"downloads/mosel_water_temperature/mosel_water_temperature_{datum.strftime('%Y-%m-%d')}.csv"
+        filename = f"apis/downloads/mosel_water_temperature/mosel_water_temperature_{datum.strftime('%Y-%m-%d')}.csv"
         with open(filename, 'wb') as file:
             file.write(response.content)
             print(f"File '{filename}' has been downloaded successfully.")
