@@ -1,11 +1,10 @@
-from load_data import get_engine
+from load_data import make_query_df
 from sqlalchemy import text
 import pandas as pd
 import plotly.graph_objects as go
 
 def get_ndvi_hist(lat, lon, fig):
-    engine = get_engine()
-    query = text("""
+    query = """
         WITH point AS (
             SELECT ST_SetSRID(ST_MakePoint(:lon, :lat), 4326) AS geom
         )
@@ -17,8 +16,8 @@ def get_ndvi_hist(lat, lon, fig):
         FROM ndvi, point
         WHERE ST_Intersects(rast, point.geom)
         ORDER BY jahr, monat
-        """)
-    ndvi = pd.read_sql(query, engine, params={'lon': lon, 'lat': lat})
+        """
+    ndvi = make_query_df(text(query), params={'lon': lon, 'lat': lat})
     ndvi_avg = ndvi.groupby(["monat"])["ndvi_value"].mean().reset_index()
     month_names = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
     ndvi_avg['monat_name'] = ndvi_avg['monat'].apply(lambda x: month_names[x-1])

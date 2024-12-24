@@ -7,16 +7,15 @@ import load_data
 
 
 def get_referenzdata():
-    engine = load_data.get_engine()
-    referenz_query = text("SELECT * FROM referenz_temperatur")
-    referenz = pd.read_sql_query(referenz_query, engine)
+    referenz_query = "SELECT * FROM referenz_temperatur"
+    referenz = load_data.make_query_df(referenz_query)
     # Zwei Wetterstationen j- also immer zwei werte...
     avg_referenz = referenz.groupby(["monat", "tag"])["wert"].mean().to_frame()
     avg_referenz = avg_referenz.reset_index()
     avg_referenz["zeitpunkt"] = pd.to_datetime(dict(year = 2024, month=avg_referenz["monat"], day = avg_referenz["tag"])) 
     
-    referenz_query = text("SELECT * FROM referenz_niederschlag")
-    referenz = pd.read_sql_query(referenz_query, engine)
+    referenz_query = "SELECT * FROM referenz_niederschlag"
+    referenz = load_data.make_query_df(referenz_query)
     # Zwei Wetterstationen j- also immer zwei werte...
     avg_referenz2 = referenz.groupby(["monat", "tag"])["wert"].mean().to_frame()
     avg_referenz2 = avg_referenz.reset_index()
@@ -90,13 +89,12 @@ def get_timeseries_temperatur():
     
 
 def get_currentdata():
-    temperatur_query = text("SELECT * FROM temperatur")
-    engine = load_data.get_engine()
-    df = pd.read_sql_query(temperatur_query, engine)
+    temperatur_query = "SELECT * FROM temperatur"
+    df = load_data.make_query_df(temperatur_query)
     avg_temp = df.groupby(["zeitpunkt"])["wert"].mean().to_frame()
     avg_temp = avg_temp.reset_index()
-    percip_query = text("SELECT * FROM niederschlag")
-    df = pd.read_sql_query(percip_query, engine)
+    percip_query = "SELECT * FROM niederschlag"
+    df = load_data.make_query_df(percip_query)
     avg_percip = df.groupby(["zeitpunkt"])["wert"].mean().to_frame()
     avg_percip = avg_percip.reset_index()
     return avg_temp, avg_percip
