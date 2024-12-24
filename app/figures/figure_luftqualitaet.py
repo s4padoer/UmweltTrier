@@ -1,4 +1,4 @@
-from load_data import get_engine
+from load_data import make_query_df
 from editing import format_date_german
 from sqlalchemy import text
 import pandas as pd
@@ -11,7 +11,7 @@ import locale
 locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
 
 def get_luftqualitaet_data():
-    query = text("""
+    query = """
                  SELECT schadstoff.kuerzel AS schadstoff_kuerzel, schadstoff.name AS schadstoff_name, 
                  zeitintervall.kuerzel AS zeitintervall_kuerzel, zeitintervall.langname AS zeitintervall_name,
                  luftqualitaet.wert, luftqualitaet.zeitpunkt
@@ -19,21 +19,19 @@ def get_luftqualitaet_data():
                  JOIN schadstoff ON luftqualitaet.schadstoff_ident = schadstoff.ident
                  JOIN zeitintervall ON luftqualitaet.zeitintervall_ident = zeitintervall.ident
                  JOIN einheit ON schadstoff.einheit_ident = einheit.ident
-                 """)
-    engine = get_engine()
-    df = pd.read_sql(query, engine)
+            """
+    df = make_query_df(query)
     df.dropna(inplace = True)
     df.sort_values(by=["schadstoff_kuerzel", "zeitpunkt"])
     return df
 
 def get_grenzwerte():
-    query = text("""
+    query = """
                  SELECT schadstoff.kuerzel AS schadstoff_kuerzel, wert, anmerkung
                  FROM grenzwerte_luftschadstoffe
                  JOIN schadstoff ON schadstoff.ident = grenzwerte_luftschadstoffe.schadstoff_ident
-                 """)
-    engine = get_engine()
-    df = pd.read_sql(query, engine)
+            """
+    df = make_query_df(query)
     return df
 
 def get_luftqualitaet_plot():

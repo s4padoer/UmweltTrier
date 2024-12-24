@@ -2,7 +2,7 @@ import dash_leaflet as dl
 from dash import html, dcc
 import pandas as pd
 from sqlalchemy import text
-from load_data import get_engine
+from load_data import make_query_df
 from figures.figure_ndvi import create_empty_ndvi_figure
 
 MAP_ID = "map"
@@ -11,12 +11,11 @@ SITE_ID = "karten-seite"
 
 
 def get_map():
-    engine = get_engine()
-    query = text("""select wetterstation.name as stationname, wetterstation.geo_breite, wetterstation.geo_laenge, dienst.name as dienstname
+    query = """select wetterstation.name as stationname, wetterstation.geo_breite, wetterstation.geo_laenge, dienst.name as dienstname
                  from wetterstation
                 join dienst on wetterstation.dienst_ident = dienst.ident 
-                ;""")
-    wetterstationen = pd.read_sql(query, engine)
+                ;"""
+    wetterstationen = make_query_df(query)
     markers = []
     for index, station in wetterstationen.iterrows():
         tooltip = "{stationname} \n Liefert Daten an: {dienstname}".format(stationname = station["stationname"], dienstname = station["dienstname"]) 
