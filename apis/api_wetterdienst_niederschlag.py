@@ -1,7 +1,7 @@
 ## API Call fuer taeglichen niederschlag
 import datetime as dt
 import pandas as pd
-from wetterdienst.provider.dwd.observation import DwdObservationRequest, DwdObservationPeriod, DwdObservationResolution, DwdObservationParameter
+from wetterdienst.provider.dwd.observation import DwdObservationRequest, DwdObservationMetadata
 from sqlalchemy import text
 import numpy as np
 import sys
@@ -46,9 +46,7 @@ if startDate.date() >= gestern.date():
     sys.exit()
 
 request = DwdObservationRequest(
-    parameter=[DwdObservationParameter.DAILY.PRECIPITATION_HEIGHT, DwdObservationParameter.DAILY.PRECIPITATION_FORM],
-    resolution=DwdObservationResolution.DAILY,
-    period=DwdObservationPeriod.RECENT,
+    parameters=[DwdObservationMetadata.daily.kl.precipitation_height, DwdObservationMetadata.daily],
     start_date=startDate,
     end_date=gestern
 )
