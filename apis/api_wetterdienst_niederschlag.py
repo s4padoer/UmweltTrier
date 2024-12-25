@@ -46,7 +46,7 @@ if startDate.date() >= gestern.date():
     sys.exit()
 
 request = DwdObservationRequest(
-    parameters=[DwdObservationMetadata.daily.kl.precipitation_height, DwdObservationMetadata.daily],
+    parameters=[("daily", "climate_summary", "precipitation_height"), ("daily", "climate_summary", "precipitation_form")],
     start_date=startDate,
     end_date=gestern
 )
