@@ -66,6 +66,8 @@ for result in stations.values.query():
     if (df is None) or (df.shape[0] == 0):
         continue
     df_niederschlag = df.filter( parameter="precipitation_height")
+    if df_niederschlag.shape[0] == 0:
+         continue
     df_niederschlag = df_niederschlag.with_columns(niederschlagsart_code = df.filter( parameter="precipitation_form")["value"].to_numpy().astype(int),
                                                    wert = df_niederschlag["value"],
                                                    zeitpunkt = df_niederschlag["date"])
