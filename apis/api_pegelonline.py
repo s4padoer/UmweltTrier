@@ -43,13 +43,15 @@ while datum < gestern:
     datum = datum + dt.timedelta(days=1)
     datumString = datum.strftime('%Y-%m-%d')
     filename = f"downloads/mosel_water_temperature/mosel_water_temperature_{datumString}.csv"
-    
-    df = pd.read_csv(filename, sep=";", decimal=",")
-    wert = df.iloc[:,1].mean()
-    dfInsert = pd.DataFrame({"ident" : [lastIdent + counter], "produkt_ident" : [3], "wetterstation_ident" : [3], "zeitpunkt" : [datum], "wert" : [wert]})
-    dfDatabase = pd.concat([dfDatabase, dfInsert], ignore_index=True)
-    os.remove(filename)
-    counter+=1
+    try:
+        df = pd.read_csv(filename, sep=";", decimal=",")
+        wert = df.iloc[:,1].mean()
+        dfInsert = pd.DataFrame({"ident" : [lastIdent + counter], "produkt_ident" : [3], "wetterstation_ident" : [3], "zeitpunkt" : [datum], "wert" : [wert]})
+        dfDatabase = pd.concat([dfDatabase, dfInsert], ignore_index=True)
+        os.remove(filename)
+        counter+=1
+    except:
+         continue
     
 dfDatabase.dropna(inplace=True)
 
