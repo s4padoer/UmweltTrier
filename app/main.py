@@ -8,6 +8,7 @@ app = Dash(__name__,suppress_callback_exceptions=True)
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
+    dcc.Store(id='previous-pathname'),
     html.Div(id='page-content')
 ])
 register_callbacks(app)

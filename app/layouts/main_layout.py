@@ -29,7 +29,7 @@ def get_main_layout():
         html.Div([
             html.H2('Luftqualität:'),
             dcc.Graph(id="luftqualitaet-graph", figure=luftqualitaet_plot),
-            html.Button(id=VERKEHRSPLOT_BUTTON_ID, n_clicks=0),
+            html.Button('Verkehrsdaten anzeigen', id=VERKEHRSPLOT_BUTTON_ID, n_clicks=0),
             dcc.Store(id=VERKEHRSPLOT_STATUS_ID, data=VERKEHRSPLOT_STATUS_OHNE_VERKEHR),
         ]),
         html.Br(),
