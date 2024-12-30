@@ -3,6 +3,10 @@ from figures.figure_wetterdienst import get_timeseries_temperatur
 from figures.figure_luftqualitaet import get_luftqualitaet_plot
 from figures.figure_moselwasser import update_moseltemperatur_und_fisch
 
+VERKEHRSPLOT_STATUS_ID = 'verkehrsplot-status'
+VERKEHRSPLOT_BUTTON_ID = 'verkehrsdaten-button'
+VERKEHRSPLOT_STATUS_OHNE_VERKEHR = 'ohne_verkehr'
+VERKEHRSPLOT_STATUS_MIT_VERKEHR = 'mit_verkehr'
 
 luftqualitaet_plot = get_luftqualitaet_plot()
 temperatur_plot = get_timeseries_temperatur()
@@ -25,6 +29,8 @@ def get_main_layout():
         html.Div([
             html.H2('Luftqualität:'),
             dcc.Graph(id="luftqualitaet-graph", figure=luftqualitaet_plot),
+            html.Button(id=VERKEHRSPLOT_BUTTON_ID, n_clicks=0),
+            dcc.Store(id=VERKEHRSPLOT_STATUS_ID, data=VERKEHRSPLOT_STATUS_OHNE_VERKEHR),
         ]),
         html.Br(),
         dcc.Link('Zur Karte', href='/karte', className='button')

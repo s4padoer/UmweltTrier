@@ -34,7 +34,17 @@ def get_grenzwerte():
     df = make_query_df(query)
     return df
 
-def get_luftqualitaet_plot():
+
+def get_verkehrsinfo():
+    query = """
+            SELECT freeflowtraveltime/currenttraveltime as ratio_traveltime, currentspeed/freeflowspeed as ratio_speed, wetterstation_ident , zeitpunkt
+            FROM verkehr
+            """
+    df = make_query_df(query)
+    return df
+
+
+def get_luftqualitaet_plot(use_speed = True):
     
     df = get_luftqualitaet_data()
     df_feinstaub = df[(df.schadstoff_kuerzel == 'PM10') & (df.zeitintervall_kuerzel == '1TMWGL')]
