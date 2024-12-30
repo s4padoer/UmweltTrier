@@ -12,37 +12,35 @@ static_ndvi_figure = create_empty_ndvi_figure()
 def register_callbacks(app):
     @app.callback(
         Output('page-content', 'children'),
+        Output('previous-pathname', 'data'),
+        State("previous-pathname", 'data'),
         Input('url', 'pathname')
     )
-    def update_content(pathname):
+    def update_content(previous_pathname, pathname):
+        if pathname == previous_pathname:
+            return dash.no_update, dash.no_update
         # Logik für die Hauptseite
         if pathname == '/':
-            return mainlayout
+            return mainlayout, "/"
         # Logik für die Kartenansicht
         elif pathname == '/karte':
-            return get_map_layout(static_ndvi_figure)  # Keine Aktualisierung für die anderen Outputs
-        return dash.no_update  # Standardfall
-    
-    @app.callback(
-            Output(VERKEHRSPLOT_BUTTON_ID, 'children'),
-            Input(VERKEHRSPLOT_STATUS_ID, "data")
-    )
-    def update_button_title(status):
-        if status == VERKEHRSPLOT_STATUS_OHNE_VERKEHR:
-            return 'Verkehrsdaten anzeigen'
-        elif status == 'mit_verkehr':
-            return 'Verkehrsdaten ausblenden'
+            return get_map_layout(static_ndvi_figure), "/karte"  # Keine Aktualisierung für die anderen Outputs
+        return dash.no_update, dash.no_update  # Standardfall
 
     @app.callback(
+        Output(VERKEHRSPLOT_STATUS_ID, 'data'),
         Output(VERKEHRSPLOT_BUTTON_ID, 'children'),
         State(VERKEHRSPLOT_STATUS_ID, 'data'),
         Input(VERKEHRSPLOT_BUTTON_ID, 'n_clicks'),
+        prevent_initial_call=True
     )
-    def update_luftqualitaet(n_clicks, current_status):
-        if current_status == VERKEHRSPLOT_STATUS_OHNE_VERKEHR or n_clicks==0:
-            return 'Verkehrsdaten anzeigen'
+    def update_luftqualitaet(current_status, n_clicks):
+        if n_clicks==0:
+            return dash.no_update, dash.no_update
+        elif current_status == VERKEHRSPLOT_STATUS_OHNE_VERKEHR:
+            return VERKEHRSPLOT_STATUS_MIT_VERKEHR, "Verkehrsdaten ausblenden"
         elif current_status == VERKEHRSPLOT_STATUS_MIT_VERKEHR:
-            return 'Verkehrsdaten ausblenden'
+            return VERKEHRSPLOT_STATUS_OHNE_VERKEHR, "Verkehrsdaten anzeigen"
 
     @app.callback(
         Output(NDVI_ID, 'figure'),
