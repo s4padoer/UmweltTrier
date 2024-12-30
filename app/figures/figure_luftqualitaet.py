@@ -7,8 +7,8 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # Setzen der Locale auf Deutsch
-import locale
-locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
+#import locale
+#locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
 
 def get_luftqualitaet_data():
     query = """
