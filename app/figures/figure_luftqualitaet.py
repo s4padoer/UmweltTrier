@@ -22,8 +22,13 @@ def get_luftqualitaet_data():
             """
     df = make_query_df(query)
     df.dropna(inplace = True)
-    df.sort_values(by=["schadstoff_kuerzel", "zeitpunkt"])
-    return df
+    df_feinstaub = df[(df.schadstoff_kuerzel == 'PM10') & (df.zeitintervall_kuerzel == '1TMWGL')]
+    df_ozon = df[(df.schadstoff_kuerzel == 'O3') & (df.zeitintervall_kuerzel == '8SMW')]
+    df_kohlenmonoxid = df[(df.schadstoff_kuerzel == 'CO') & (df.zeitintervall_kuerzel == '8SMW')]
+    df_feinstaub.sort_values("zeitpunkt", inplace=True)
+    df_ozon.sort_values("zeitpunkt", inplace=True)
+    df_kohlenmonoxid.sort_values("zeitpunkt", inplace=True)
+    return df_feinstaub, df_ozon, df_kohlenmonoxid
 
 def get_grenzwerte():
     query = """
@@ -37,24 +42,42 @@ def get_grenzwerte():
 
 def get_verkehrsinfo():
     query = """
-            SELECT freeflowtraveltime/currenttraveltime as ratio_traveltime, currentspeed/freeflowspeed as ratio_speed, wetterstation_ident , zeitpunkt
+            SELECT freeflowtraveltime/currenttraveltime AS ratio_traveltime, currentspeed/freeflowspeed AS ratio_speed, wetterstation_ident , zeitpunkt
             FROM verkehr
+            WHERE wetterstation_ident = 6
             """
     df = make_query_df(query)
+    df.sort_values("zeitpunkt", inplace=True)
     return df
 
 
-def get_luftqualitaet_plot(use_speed = True):
-    
-    df = get_luftqualitaet_data()
-    df_feinstaub = df[(df.schadstoff_kuerzel == 'PM10') & (df.zeitintervall_kuerzel == '1TMWGL')]
-    df_ozon = df[(df.schadstoff_kuerzel == 'O3') & (df.zeitintervall_kuerzel == '8SMW')]
-    df_kohlenmonoxid = df[(df.schadstoff_kuerzel == 'CO') & (df.zeitintervall_kuerzel == '8SMW')]
-    del df
-    df_feinstaub.sort_values("zeitpunkt", inplace=True)
-    df_ozon.sort_values("zeitpunkt", inplace=True)
-    df_kohlenmonoxid.sort_values("zeitpunkt", inplace=True)
-    grenzwerte = get_grenzwerte()
+def get_alternative_luftqualitaet_plot():
+    df_feinstaub, df_ozon, df_kohlenmonoxid = get_luftqualitaet_data()
+    df_verkehr = get_verkehrsinfo()
+    fig = get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid)
+    fig.add_trace( go.Scatter(x=df_verkehr['zeitpunkt'], y=df_verkehr['ratio_traveltime'], 
+                   name='Verhältnis freie/aktuelle Reisezeit', line=dict(color='red'),
+                   connectgaps=False,
+                    hovertemplate='%{y:.1f}',
+                   ),
+        secondary_y=True)
+    fig.update_layout(
+    title_text="Luftqualität und Verkehrsdaten",
+    xaxis_title="Zeit",
+    yaxis_title="µg/m³",
+    yaxis2_title="mg/m³",
+    yaxis3=dict(
+        title="Ratio freie vs. aktuelle Reisezeit/ Geschwindigkeit",
+        anchor="free",
+        overlaying="y",
+        side="right",
+        position=1
+        )
+    )
+    return fig
+
+
+def get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid):
     # Erstellen Sie eine Figure mit Subplots
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -116,8 +139,16 @@ def get_luftqualitaet_plot(use_speed = True):
     # Update der y-Achsen
     fig.update_yaxes(title_text="µg/m³", secondary_y=False)
     fig.update_yaxes(title_text="mg/m³", secondary_y=True)
+    return fig
+
+
+def get_luftqualitaet_plot():
     
-        # Grenzwertlinie hinzufügen
+    df_feinstaub, df_ozon, df_kohlenmonoxid = get_luftqualitaet_data()
+    grenzwerte = get_grenzwerte()
+
+    fig = get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid)
+    # Grenzwertlinie hinzufügen
     limit =grenzwerte.loc[grenzwerte["schadstoff_kuerzel"]=="PM10","wert"].iloc[0]
     fig.add_trace(
         go.Scatter(
