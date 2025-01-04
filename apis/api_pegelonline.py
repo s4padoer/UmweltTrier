@@ -8,6 +8,7 @@ from load_data import get_engine
 url = "https://www.pegelonline.wsv.de/webservices/files/Wassertemperatur+Rohdaten/MOSEL/abd34ee6-a578-4639-b73d-fa4e08f40345"
 
 csvFilename = "down.csv"
+pfad = os.path.join( os.path.dirname(__file__), "downloads")
 
 engine = get_engine()
 
@@ -28,7 +29,7 @@ while datum < gestern:
     response = requests.get(completeUrl, allow_redirects=True)
     
     if response.status_code == 200:
-        filename = f"apis/downloads/mosel_water_temperature/mosel_water_temperature_{datum.strftime('%Y-%m-%d')}.csv"
+        filename = f"{pfad}/mosel_water_temperature_{datum.strftime('%Y-%m-%d')}.csv"
         with open(filename, 'wb') as file:
             file.write(response.content)
             print(f"File '{filename}' has been downloaded successfully.")
@@ -42,7 +43,7 @@ counter = 1
 while datum < gestern:
     datum = datum + dt.timedelta(days=1)
     datumString = datum.strftime('%Y-%m-%d')
-    filename = f"downloads/mosel_water_temperature/mosel_water_temperature_{datumString}.csv"
+    filename = f"{pfad}/mosel_water_temperature/mosel_water_temperature_{datumString}.csv"
     try:
         df = pd.read_csv(filename, sep=";", decimal=",")
         wert = df.iloc[:,1].mean()
