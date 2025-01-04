@@ -1,6 +1,6 @@
 from dash import html, dcc
 from figures.figure_wetterdienst import get_timeseries_temperatur
-from figures.figure_luftqualitaet import get_luftqualitaet_plot
+from figures.figure_luftqualitaet import get_luftqualitaet_plot, get_alternative_luftqualitaet_plot
 from figures.figure_moselwasser import update_moseltemperatur_und_fisch
 
 VERKEHRSPLOT_STATUS_ID = 'verkehrsplot-status'
@@ -9,6 +9,7 @@ VERKEHRSPLOT_STATUS_OHNE_VERKEHR = 'ohne_verkehr'
 VERKEHRSPLOT_STATUS_MIT_VERKEHR = 'mit_verkehr'
 
 luftqualitaet_plot = get_luftqualitaet_plot()
+alternative_luftqualitaet_plot = get_alternative_luftqualitaet_plot()
 temperatur_plot = get_timeseries_temperatur()
 mosel_temp, fisch_image = update_moseltemperatur_und_fisch()
 
