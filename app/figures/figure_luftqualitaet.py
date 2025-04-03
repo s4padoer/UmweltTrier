@@ -41,8 +41,13 @@ def get_grenzwerte():
 
 
 def get_verkehrsinfo():
+    # Gleitender Durchschnitt, wie es bei den Luft-Daten der Fall ist 
     query = """
-            SELECT freeflowtraveltime/currenttraveltime AS ratio_traveltime, currentspeed/freeflowspeed AS ratio_speed, wetterstation_ident , zeitpunkt
+            SELECT freeflowtraveltime/currenttraveltime AS ratio_traveltime, 
+            AVG(currentspeed/freeflowspeed ) OVER (
+                ORDER BY zeitpunkt
+                ROWS BETWEEN 11 PRECEDING AND CURRENT ROW
+            ) AS ratio_speed, wetterstation_ident, zeitpunkt
             FROM verkehr
             WHERE wetterstation_ident = 6
             """
@@ -56,7 +61,7 @@ def get_alternative_luftqualitaet_plot():
     df_verkehr = get_verkehrsinfo()
     fig = get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid)
     fig.add_trace( go.Scatter(x=df_verkehr['zeitpunkt'], y=df_verkehr['ratio_traveltime'], 
-                   name='Verhältnis freie/aktuelle Reisezeit', line=dict(color='red'),
+                   name='Verhältnis freie / aktuelle Reisezeit', line=dict(color='red'),
                    connectgaps=False,
                     hovertemplate='%{y:.1f}',
                    ),
@@ -67,7 +72,7 @@ def get_alternative_luftqualitaet_plot():
     yaxis_title="µg/m³",
     yaxis2_title="mg/m³",
     yaxis3=dict(
-        title="Ratio freie vs. aktuelle Reisezeit/ Geschwindigkeit",
+        title="Ratio freie vs. aktuelle Reisezeit / Geschwindigkeit",
         anchor="free",
         overlaying="y",
         side="right",

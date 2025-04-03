@@ -26,6 +26,20 @@ def get_referenzdata():
 def get_timeseries_temperatur():
     referenzdata_temp, referenzdata_percip = get_referenzdata()
     currentdata_temp, currentdata_percip = get_currentdata()
+    dates = currentdata_temp[["zeitpunkt"]].groupby(currentdata_temp.zeitpunkt.dt.year).max()
+    for i,d in enumerate(dates.zeitpunkt[1:].tolist()):
+        new_ref_temp = referenzdata_temp[((referenzdata_temp.zeitpunkt.dt.month == d.month) &  
+                                         (referenzdata_temp.zeitpunkt.dt.day <= d.day )) |
+                                         (referenzdata_temp.zeitpunkt.dt.month < d.month)]
+        new_ref_percip = referenzdata_percip[((referenzdata_percip.zeitpunkt.dt.month == d.month) &  
+                                         (referenzdata_percip.zeitpunkt.dt.day <= d.day )) |
+                                         (referenzdata_percip.zeitpunkt.dt.month < d.month)]
+        new_ref_temp = new_ref_temp[~((new_ref_temp.zeitpunkt.dt.day == 29)&(new_ref_temp.zeitpunkt.dt.month==2))]
+        new_ref_percip = new_ref_percip[~((new_ref_percip.zeitpunkt.dt.day == 29)&(new_ref_percip.zeitpunkt.dt.month==2))]
+        new_ref_temp.zeitpunkt = pd.to_datetime(dict(year = d.year, month= new_ref_temp.zeitpunkt.dt.month, day = new_ref_temp.zeitpunkt.dt.day))
+        new_ref_percip.zeitpunkt = pd.to_datetime(dict(year = d.year, month= new_ref_percip.zeitpunkt.dt.month, day = new_ref_percip.zeitpunkt.dt.day))
+        referenzdata_temp = pd.concat([referenzdata_temp, new_ref_temp])
+        referenzdata_percip = pd.concat([referenzdata_percip, new_ref_percip])
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.update_xaxes(tickformat="%d.%m.%y")
     fig.update_yaxes(
