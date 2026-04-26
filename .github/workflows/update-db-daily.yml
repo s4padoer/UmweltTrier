@@ -1,4 +1,4 @@
-name: Update Supabase DB
+name: Update Supabase DB (Niederschlag, Temperatur, Luft)
 on:
   schedule:
     - cron: '0 2 * * *'  # Täglich um 2 Uhr UTC
