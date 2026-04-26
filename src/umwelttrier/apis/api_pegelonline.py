@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import datetime as dt
 from sqlalchemy import text
-from load_data import get_engine
+from umwelttrier.apis.load_data import get_engine
 
 url = "https://www.pegelonline.wsv.de/webservices/files/Wassertemperatur+Rohdaten/MOSEL/abd34ee6-a578-4639-b73d-fa4e08f40345"
 

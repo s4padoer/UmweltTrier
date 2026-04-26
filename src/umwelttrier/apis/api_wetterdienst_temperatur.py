@@ -5,7 +5,7 @@ from wetterdienst.provider.dwd.observation import DwdObservationRequest, DwdObse
 from sqlalchemy import text
 import numpy as np
 import sys
-from load_data import get_engine
+from umwelttrier.apis.load_data import get_engine
 
 engine = get_engine()
 

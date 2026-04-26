@@ -2,8 +2,8 @@ import dash_leaflet as dl
 from dash import html, dcc
 import pandas as pd
 from sqlalchemy import text
-from load_data import make_query_df
-from figures.figure_ndvi import create_empty_ndvi_figure
+from umwelttrier.app.load_data import make_query_df
+from umwelttrier.app.figures.figure_ndvi import create_empty_ndvi_figure
 
 MAP_ID = "map"
 NDVI_ID = "ndvi-barplot"

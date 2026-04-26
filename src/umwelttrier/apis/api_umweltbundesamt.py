@@ -5,7 +5,7 @@ import datetime as dt
 from sqlalchemy import create_engine, text
 import json
 import numpy as np
-from load_data import get_engine
+from umwelttrier.apis.load_data import get_engine
 
 url = "https://www.umweltbundesamt.de/api/air_data/v2"
 

@@ -21,8 +21,8 @@ import numpy as np
 import pyproj
 import shutil
 
-from write_to_database import write_to_database
-from load_data import get_engine
+from umwelttrier.apis.write_to_database import write_to_database
+from umwelttrier.apis.load_data import get_engine
 
 #############################################
 # Laden der Parameter

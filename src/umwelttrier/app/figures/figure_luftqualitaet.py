@@ -1,5 +1,5 @@
-from load_data import make_query_df
-from editing import format_date_german
+from umwelttrier.app.load_data import make_query_df
+from umwelttrier.app.editing import format_date_german
 from sqlalchemy import text
 import pandas as pd
 

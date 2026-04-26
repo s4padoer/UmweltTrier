@@ -1,4 +1,4 @@
-from load_data import make_query_df
+from src.umwelttrier.app.load_data import make_query_df
 from sqlalchemy import text
 import pandas as pd
 import plotly.graph_objects as go

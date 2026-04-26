@@ -3,7 +3,7 @@ import pandas as pd
 import plotly_express as px
 from plotly import graph_objects as go
 from plotly.subplots import make_subplots
-import load_data
+import umwelttrier.app.load_data as load_data
 
 
 def get_referenzdata():

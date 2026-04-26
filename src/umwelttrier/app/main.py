@@ -1,8 +1,8 @@
 from dash import Dash, html, dcc
 from threading import Thread
-from layouts.main_layout import update_figure, mainlayout
-from load_data import listen_for_notifications, use_ssh
-from layouts.callbacks import register_callbacks
+from umwelttrier.app.layouts.main_layout import update_figure, mainlayout
+from umwelttrier.app.load_data import listen_for_notifications, use_ssh
+from umwelttrier.app.layouts.callbacks import register_callbacks
 
 app = Dash(__name__,suppress_callback_exceptions=True)
 

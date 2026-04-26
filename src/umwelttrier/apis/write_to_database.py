@@ -4,7 +4,7 @@ import rasterio
 import re
 import subprocess
 import urllib.parse
-from load_data import DATABASE_URL
+from umwelttrier.apis.load_data import DATABASE_URL
 
 
 def parse_database_url(database_url):
