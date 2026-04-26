@@ -16,15 +16,15 @@ jobs:
       uses: astral-sh/uv@v3
       with:
         enable-cache: true
-      run: uv sync
+        version: latest
     - name: Run update script
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: python apis/api_pegelonline.py
-           python apis/api_umweltbundesamt.py
-           python apis/api_wetterdienst_niederschlag.py
-           python apis/api_wetterdienst_temperatur.py
+      run: uv run python -m umwelttrier.apis.api_pegelonline.py
+           uv run python -m umwelttrier.apis.api_umweltbundesamt.py
+           uv run python -m umwelttrier.apis.api_wetterdienst_niederschlag.py
+           uv run python -m umwelttrier.apis.api_wetterdienst_temperatur.py
     - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
