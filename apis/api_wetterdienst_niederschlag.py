@@ -1,6 +1,7 @@
 ## API Call fuer taeglichen niederschlag
 import datetime as dt
 import pandas as pd
+import polars as pl
 from wetterdienst.provider.dwd.observation import DwdObservationRequest, DwdObservationMetadata
 from sqlalchemy import text
 import numpy as np
@@ -68,9 +69,14 @@ for result in stations.values.query():
     df_niederschlag = df.filter( parameter="precipitation_height")
     if df_niederschlag.shape[0] == 0:
          continue
+    
+    fehlende_daten = set(df["date"].unique().to_list()).difference(set(df_niederschlag["date"].unique().to_list()))
+    df = df.filter(~pl.col("date").is_in(fehlende_daten))
+    
     df_niederschlag = df_niederschlag.with_columns(niederschlagsart_code = df.filter( parameter="precipitation_form")["value"].to_numpy().astype(int),
                                                    wert = df_niederschlag["value"],
                                                    zeitpunkt = df_niederschlag["date"])
+    
     df_niederschlag = df_niederschlag.drop(["dataset", "value", "quality", "date", "parameter"])
     df_niederschlag = df_niederschlag.with_columns(
         wetterstation_ident=df_niederschlag["station_id"].map_elements(lambda x: wetterstation_petrisberg if x =='05100' else wetterstation_zewen, return_dtype=int),
@@ -80,4 +86,3 @@ for result in stations.values.query():
     df_niederschlag = df_niederschlag.drop(["station_id", "niederschlagsart_code"])
     df = df_niederschlag.to_pandas()
     df.to_sql("niederschlag", con=engine, if_exists="append", index=False)
-
