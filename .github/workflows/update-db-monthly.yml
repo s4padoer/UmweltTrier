@@ -15,12 +15,14 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       uses: astral-sh/uv@v7
       with:
         enable-cache: true
         version: latest
+    - name: Install package
+      run: uv pip install --system -e .
     - name: Run update script
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}

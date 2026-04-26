@@ -11,20 +11,22 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       uses: astral-sh/uv@v7
       with:
         enable-cache: true
         version: latest
+    - name: Install package
+      run: uv pip install --system -e .
     - name: Run update script
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: uv run python -m umwelttrier.apis.api_pegelonline.py
-           uv run python -m umwelttrier.apis.api_umweltbundesamt.py
-           uv run python -m umwelttrier.apis.api_wetterdienst_niederschlag.py
-           uv run python -m umwelttrier.apis.api_wetterdienst_temperatur.py
+      run: python -m umwelttrier.apis.api_pegelonline.py
+           python -m umwelttrier.apis.api_umweltbundesamt.py
+           python -m umwelttrier.apis.api_wetterdienst_niederschlag.py
+           python -m umwelttrier.apis.api_wetterdienst_temperatur.py
     - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
