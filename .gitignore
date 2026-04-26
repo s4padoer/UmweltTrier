@@ -1,6 +1,4 @@
-klimatrier.tar
-apis/.env
-app/datenbank.json
+.env
 nutzer_leserechte.sql
 apis/assets/eodag.yaml
 apis/__pycache__/
