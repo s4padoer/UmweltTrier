@@ -1,5 +1,5 @@
 klimatrier.tar
-apis/datenbank.json
+apis/.env
 app/datenbank.json
 nutzer_leserechte.sql
 apis/assets/eodag.yaml
@@ -11,5 +11,4 @@ app/figures/__pycache__/
 first_edits/
 downloads/
 venv/
-apis/tomtom.json
 logs/

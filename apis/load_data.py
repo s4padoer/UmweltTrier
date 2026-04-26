@@ -7,7 +7,12 @@ from sqlalchemy import create_engine
 #with open(pfad, "r") as configfile:
 #    config = json.load(configfile)
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL is None:
+    from dotenv import load_dotenv
+    pfad = os.path.join(os.path.dirname(__file__), ".env")
+    load_dotenv(pfad) 
+    DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_engine():
     #databaseurl = "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(

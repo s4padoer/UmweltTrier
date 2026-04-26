@@ -28,7 +28,13 @@ produkt = pd.read_sql_query(text("SELECT * FROM produkt WHERE kurzname = 'Traffi
 #    tomtom_access = json.load(configfile)
 #    key = tomtom_access["key"]
 
-TOMTOM_KEY = os.getenviron["TOMTOM_KEY"]
+TOMTOM_KEY = os.environ.get("TOMTOM_KEY")
+if TOMTOM_KEY is None:
+    from dotenv import load_dotenv
+    pfad = os.path.join(os.path.dirname(__file__), ".env")
+    load_dotenv(pfad) 
+    TOMTOM_KEY = os.environ.get("TOMTOM_KEY")
+
 baseURL = "api.tomtom.com/traffic/services"
 versionNumber = 4
 style = "relative0"
