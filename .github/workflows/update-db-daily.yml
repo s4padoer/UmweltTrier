@@ -13,7 +13,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Install dependencies
-      uses: astral-sh/uv@v3
+      uses: astral-sh/uv@v7
       with:
         enable-cache: true
         version: latest
