@@ -18,7 +18,7 @@ jobs:
         enable-cache: true
         version: latest
     - name: Install package
-      run: uv pip install -e .
+      run: uv pip install --system -e .
     - name: Run update script
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
