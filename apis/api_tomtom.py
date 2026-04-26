@@ -1,11 +1,11 @@
 # API zu TomTom
 
+import datetime as dt
 import json
+import pandas as pd
+import os
 import requests
 from sqlalchemy import text
-import pandas as pd
-import datetime as dt
-import os
 
 from load_data import get_engine
 
@@ -22,12 +22,13 @@ query = text(""" SELECT * FROM einheit WHERE kuerzel IN ('s', 'km/h')
 einheiten = pd.read_sql_query(query, engine)
 produkt = pd.read_sql_query(text("SELECT * FROM produkt WHERE kurzname = 'Traffic API'"), engine)
 
-pfad_tomtom = os.path.join(os.path.dirname(__file__), "tomtom.json")
+#pfad_tomtom = os.path.join(os.path.dirname(__file__), "tomtom.json")
+#
+#with open(pfad_tomtom, "r") as configfile:
+#    tomtom_access = json.load(configfile)
+#    key = tomtom_access["key"]
 
-with open(pfad_tomtom, "r") as configfile:
-    tomtom_access = json.load(configfile)
-    key = tomtom_access["key"]
-
+TOMTOM_KEY = os.getenviron["TOMTOM_KEY"]
 baseURL = "api.tomtom.com/traffic/services"
 versionNumber = 4
 style = "relative0"
@@ -41,7 +42,7 @@ for i,row in wetterstationen.iterrows():
 
     # Request:
     address = f"https://{baseURL}/{versionNumber}/flowSegmentData/{style}/{zoom}/json?"
-    address = address + "point=" + "{}%2C{}".format(point[0], point[1]) +"&unit=" + "KMPH" + "&key=" + key
+    address = address + "point=" + "{}%2C{}".format(point[0], point[1]) +"&unit=" + "KMPH" + "&key=" + TOMTOM_KEY
     resp = requests.get(address)
     if resp.status_code == 200:
         result = pd.DataFrame(json.loads(resp.content)).T

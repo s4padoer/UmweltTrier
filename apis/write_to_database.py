@@ -1,8 +1,23 @@
-import subprocess
 import os
-import re
-import rasterio
 import json
+import rasterio
+import re
+import subprocess
+import urllib.parse
+from load_data import DATABASE_URL
+
+
+def parse_database_url(database_url):
+    """Extrahiert Host, Port, DB, User, Pass aus DATABASE_URL"""
+    result = urllib.parse.urlparse(database_url)
+    return {
+        'dbname': result.path[1:],
+        'user': result.username,
+        'password': result.password,
+        'host': result.hostname,
+        'port': result.port or 5432
+    }
+
 
 def remove_first_x_lines(text, x):
     # Den Text in Zeilen aufteilen
@@ -59,7 +74,21 @@ def write_to_database(file_path):
     psql_command = (
         f"psql -d klimatrier -h localhost -U {user} -f {modified_sql_file}"
     )
-    subprocess.run(psql_command, shell=True, check=True)
-    # Bereinigen Sie temporäre Dateien
+
+    config = parse_database_url(DATABASE_URL)
+    env = os.environ.copy()
+    env["PGPASSWORD"] = config['password']
+
+    psql_command = (
+        f"psql "
+        f"-d {config['dbname']} "
+        f"-h {config['host']} "
+        f"-p {config['port']} "
+        f"-U {config['user']} "
+        f"-f {modified_sql_file}"
+    )
+    subprocess.run(psql_command, shell=True, check=True, env=env)
+
+    # Bereinige temporäre Dateien
     os.remove(temp_sql_file)
     os.remove(modified_sql_file)

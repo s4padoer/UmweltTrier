@@ -1,0 +1,28 @@
+name: Update Supabase DB
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Täglich um 2 Uhr UTC
+  workflow_dispatch:  # Manuell triggern
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: pip install supabase | pip install -r requirements.txt
+    - name: Run update script
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      run: python apis/api_pegelonline.py
+           python apis/api_umweltbundesamt.py
+           python apis/api_wetterdienst_niederschlag.py
+           python apis/api_wetterdienst_temperatur.py
+    - uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
