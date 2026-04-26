@@ -19,6 +19,8 @@ jobs:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         TOMTOM_KEY: ${{ secrets.TOMTOM_KEY }}
+        PGSSLMODE: require
+        PGOPTIONS: "-c gdbbin=on -c gssencmode=disable"  # GSSAPI fix
       run: python apis/api_tomtom.py
     - uses: actions/cache@v4
       with:
