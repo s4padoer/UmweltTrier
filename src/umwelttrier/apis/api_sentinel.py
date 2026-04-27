@@ -1,6 +1,7 @@
 import datetime as dt
 import calendar
 from collections import defaultdict
+import tempfile
 
 from shapely import geometry
 
@@ -199,7 +200,8 @@ def main():
         cloudCover=30,  # Wolkenbedeckung zwischen 0% und 30%
     )
 
-    download_pfad = "downloads/copernicus/"
+    download_pfad = os.path.join(tempfile.gettempdir(), "umwelttrier_downloads", "copernicus")
+    os.makedirs(download_pfad, exist_ok=True)
 
     for result in search_results:
         if not covers_geojson(result, geometry):

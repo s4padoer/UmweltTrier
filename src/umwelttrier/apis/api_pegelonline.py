@@ -2,6 +2,7 @@ import requests
 import os
 import pandas as pd
 import datetime as dt
+import tempfile
 from sqlalchemy import text
 from umwelttrier.apis.load_data import get_engine
 
@@ -9,7 +10,9 @@ def main():
     url = "https://www.pegelonline.wsv.de/webservices/files/Wassertemperatur+Rohdaten/MOSEL/abd34ee6-a578-4639-b73d-fa4e08f40345"
 
     csvFilename = "down.csv"
-    pfad = os.path.join( os.path.dirname(__file__), "downloads")
+    # Nutze temporäres Verzeichnis für GitHub Actions Kompatibilität
+    pfad = os.path.join(tempfile.gettempdir(), "umwelttrier_downloads")
+    os.makedirs(pfad, exist_ok=True)
 
     engine = get_engine()
 
@@ -44,7 +47,7 @@ def main():
     while datum < gestern:
         datum = datum + dt.timedelta(days=1)
         datumString = datum.strftime('%Y-%m-%d')
-        filename = f"{pfad}/mosel_water_temperature/mosel_water_temperature_{datumString}.csv"
+        filename = f"{pfad}/mosel_water_temperature_{datumString}.csv"
         try:
             df = pd.read_csv(filename, sep=";", decimal=",")
             wert = df.iloc[:,1].mean()
