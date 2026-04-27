@@ -2,6 +2,8 @@ import datetime as dt
 import calendar
 from collections import defaultdict
 
+from shapely import geometry
+
 import rasterio.transform
 import rasterio.warp
 from eodag import EODataAccessGateway
@@ -23,48 +25,6 @@ import shutil
 
 from umwelttrier.apis.write_to_database import write_to_database
 from umwelttrier.apis.load_data import get_engine
-
-#############################################
-# Laden der Parameter
-#############################################
-# Laden der separaten YAML-Datei
-with open('apis/assets/eodag.yaml', 'r') as config_file:
-    config = yaml.safe_load(config_file)
-    config_string = yaml.dump(config)
-
-engine = get_engine()
-
-with engine.connect() as conn:
-        query = text("SELECT jahr, monat FROM ndvi ORDER BY jahr DESC, monat DESC LIMIT 1")
-        result = conn.execute(query)
-        lastDate = result.fetchone()
-        result = conn.execute(text("SELECT MAX(ident) FROM ndvi"))
-        lastIdent = result.fetchone()[0]
-
-heute = dt.datetime.now().date()
-
-if lastDate[1] == 12:
-    nextMonth = 1
-    year = lastDate[0]+1
-else:
-    nextMonth = lastDate[1] +1
-    year = lastDate[0]
-
-if heute.month == nextMonth:
-    sys.exit()
-    
-startdate = dt.date(year, nextMonth, 1)
-last_day = calendar.monthrange(startdate.year, startdate.month)[1]
-enddate = dt.date(year, nextMonth, last_day)
-
-# Geodaten laden
-with open('apis/assets/trier.geojson', 'r') as f:
-    geojson = json.load(f)
-    
-# Geometrie extrahieren und in Shapely-Objekt umwandeln
-geometry = shape(geojson['features'][0]['geometry'])
-wkt_string = wkt.dumps(geometry)
-
 
 
 ##########################################################
@@ -169,63 +129,6 @@ def write_image(image_data, profile, filepath):
                       transform=profile["transform"]) as dst:
         dst.write(image_data)
     
-    
-##########################################################
-# Lade Daten herunter 
-###########################################################
-# Initialisieren Sie den Gateway
-dag = EODataAccessGateway()
-dag.set_preferred_provider("cop_dataspace")
-dag.update_providers_config(config_string)
-
-# Suche durchführen
-search_results, total_count = dag.search(
-    productType="S2_MSI_L2A",
-    geom=wkt_string,
-    start=startdate.strftime("%Y-%m-%d"),
-    end=enddate.strftime("%Y-%m-%d"),
-    cloudCover=30,  # Wolkenbedeckung zwischen 0% und 30%
-)
-
-download_pfad = "downloads/copernicus/"
-
-for result in search_results:
-    if not covers_geojson(result, geometry):
-        continue
-    # Immer dieselbe Region verwenden, damit wir spaeter die Bilder nicht nochmal
-    # alignen muessen
-    if result.properties["title"].rfind("T32ULA")<0:
-        continue
-    print(result.properties["title"])
-    # Download als GeoTIFF
-    product_path = dag.download(
-        result, extract=True,
-        outputs_prefix = download_pfad,
-        output_format="GEOTIFF",
-        asset=["B04", "B08"],
-        geometry=geometry
-    )
-
-    red_band_path = find_files_with_extension(os.path.join(product_path, 'GRANULE'), "B04_10m.jp2")[0]
-    nir_band_path = find_files_with_extension(os.path.join(product_path, 'GRANULE'), "B08_10m.jp2")[0]
-    pattern = r'(\d{8})T'
-    download_name = os.path.basename(product_path)
-    match = re.search(pattern, download_name.split("_")[-1])
-    # NDVI berechnen
-    ndvi_image, profile, bbox = calculate_ndvi(red_band_path, nir_band_path)
-    ndvi_output_path = os.path.join(download_pfad, f"ndvi_{match.group(1)}.tif")
-    # Transformiere zur CRS, die die bisherigen Bilder in der DB haben
-    ndvi_reprojected, profile_reprojected = reproject_image_data(ndvi_image, profile, bbox, geometry)
-    write_image(ndvi_reprojected, profile_reprojected, ndvi_output_path)    
-    product_path = product_path.replace(os.path.basename(product_path), "")
-    shutil.rmtree(product_path)
-
-###########################################################
-## Bestimme jetzt den Mittelwert
-###########################################################
-
-files = os.listdir(download_pfad)
-dic = defaultdict(list)
 
 def get_date_from_filename(filename):
     dateformat = "%Y%m%d"
@@ -236,41 +139,144 @@ def get_date_from_filename(filename):
         return datum
     except:
         print("Formatierungsfehler")
-    
 
-# Hauptschleife fuer den Mittelwert
-for file in files:
-    year_month = str(year)
-    if nextMonth<10:
-        year_month += f"0{nextMonth}"
+
+def main():
+    #############################################
+    # Laden der Parameter
+    #############################################
+    # Laden der separaten YAML-Datei
+    with open('apis/assets/eodag.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+        config_string = yaml.dump(config)
+
+    engine = get_engine()
+
+    with engine.connect() as conn:
+        query = text("SELECT jahr, monat FROM ndvi ORDER BY jahr DESC, monat DESC LIMIT 1")
+        result = conn.execute(query)
+        lastDate = result.fetchone()
+        result = conn.execute(text("SELECT MAX(ident) FROM ndvi"))
+        lastIdent = result.fetchone()[0]
+
+    heute = dt.datetime.now().date()
+
+    if lastDate[1] == 12:
+        nextMonth = 1
+        year = lastDate[0]+1
     else:
-        year_month += str(nextMonth)
-    if not file.endswith(".tif") or not file.startswith(f"ndvi_{year_month}"):
-        print(f"{file} nicht verarbeitet")
-        continue
+        nextMonth = lastDate[1] +1
+        year = lastDate[0]
+
+    if heute.month == nextMonth:
+        sys.exit()
+
+    startdate = dt.date(year, nextMonth, 1)
+    last_day = calendar.monthrange(startdate.year, startdate.month)[1]
+    enddate = dt.date(year, nextMonth, last_day)
+
+    # Geodaten laden
+    with open('apis/assets/trier.geojson', 'r') as f:
+        geojson = json.load(f)
     
-    datum = get_date_from_filename(file)
-    datum_string = dt.datetime.strftime(datum, "%Y_%m")
-    file_path = os.path.join(download_pfad, file)
-    with rasterio.open(file_path, 'r') as src:
-        new_data = src.read()
-        profile = src.profile
-    previous_data = dic[datum_string]
-    previous_data.append(new_data)
-    dic[datum_string] = previous_data
-    print(f"{file} verarbeitet")
-        
-for year_month, data_list in dic.items():
-    avg_data = np.mean(data_list, axis=0)
-        
-    # Speichern Sie das gemittelte Bild
-    output_file = os.path.join(download_pfad, f'avg_ndvi_{year_month}.tiff')
-    with rasterio.open(output_file, 'w', **profile) as dst:
-        dst.write(avg_data)
+    # Geometrie extrahieren und in Shapely-Objekt umwandeln
+    geometry = shape(geojson['features'][0]['geometry'])
+    wkt_string = wkt.dumps(geometry)
+    ##########################################################
+    # Lade Daten herunter 
+    ###########################################################
+    # Initialisieren Sie den Gateway
+    dag = EODataAccessGateway()
+    dag.set_preferred_provider("cop_dataspace")
+    dag.update_providers_config(config_string)
 
-    # Schreibe in die Datenbank:
-    write_to_database(output_file)
+    # Suche durchführen
+    search_results, total_count = dag.search(
+        productType="S2_MSI_L2A",
+        geom=wkt_string,
+        start=startdate.strftime("%Y-%m-%d"),
+        end=enddate.strftime("%Y-%m-%d"),
+        cloudCover=30,  # Wolkenbedeckung zwischen 0% und 30%
+    )
 
-for file in files:
-    file_path = os.path.join(download_pfad, file)
-    os.remove(file_path)
+    download_pfad = "downloads/copernicus/"
+
+    for result in search_results:
+        if not covers_geojson(result, geometry):
+            continue
+        # Immer dieselbe Region verwenden, damit wir spaeter die Bilder nicht nochmal
+        # alignen muessen
+        if result.properties["title"].rfind("T32ULA")<0:
+            continue
+        print(result.properties["title"])
+        # Download als GeoTIFF
+        product_path = dag.download(
+            result, extract=True,
+            outputs_prefix = download_pfad,
+            output_format="GEOTIFF",
+            asset=["B04", "B08"],
+            geometry=geometry
+        )
+
+        red_band_path = find_files_with_extension(os.path.join(product_path, 'GRANULE'), "B04_10m.jp2")[0]
+        nir_band_path = find_files_with_extension(os.path.join(product_path, 'GRANULE'), "B08_10m.jp2")[0]
+        pattern = r'(\d{8})T'
+        download_name = os.path.basename(product_path)
+        match = re.search(pattern, download_name.split("_")[-1])
+        # NDVI berechnen
+        ndvi_image, profile, bbox = calculate_ndvi(red_band_path, nir_band_path)
+        ndvi_output_path = os.path.join(download_pfad, f"ndvi_{match.group(1)}.tif")
+        # Transformiere zur CRS, die die bisherigen Bilder in der DB haben
+        ndvi_reprojected, profile_reprojected = reproject_image_data(ndvi_image, profile, bbox, geometry)
+        write_image(ndvi_reprojected, profile_reprojected, ndvi_output_path)    
+        product_path = product_path.replace(os.path.basename(product_path), "")
+        shutil.rmtree(product_path)
+
+    ###########################################################
+    ## Bestimme jetzt den Mittelwert
+    ###########################################################
+
+    files = os.listdir(download_pfad)
+    dic = defaultdict(list)
+
+
+    # Hauptschleife fuer den Mittelwert
+    for file in files:
+        year_month = str(year)
+        if nextMonth<10:
+            year_month += f"0{nextMonth}"
+        else:
+            year_month += str(nextMonth)
+        if not file.endswith(".tif") or not file.startswith(f"ndvi_{year_month}"):
+            print(f"{file} nicht verarbeitet")
+            continue
+            
+        datum = get_date_from_filename(file)
+        datum_string = dt.datetime.strftime(datum, "%Y_%m")
+        file_path = os.path.join(download_pfad, file)
+        with rasterio.open(file_path, 'r') as src:
+            new_data = src.read()
+            profile = src.profile
+        previous_data = dic[datum_string]
+        previous_data.append(new_data)
+        dic[datum_string] = previous_data
+        print(f"{file} verarbeitet")
+        
+    for year_month, data_list in dic.items():
+        avg_data = np.mean(data_list, axis=0)
+        
+        # Speichern Sie das gemittelte Bild
+        output_file = os.path.join(download_pfad, f'avg_ndvi_{year_month}.tiff')
+        with rasterio.open(output_file, 'w', **profile) as dst:
+            dst.write(avg_data)
+
+        # Schreibe in die Datenbank:
+        write_to_database(output_file)
+
+    for file in files:
+        file_path = os.path.join(download_pfad, file)
+        os.remove(file_path)
+
+
+if __name__ == "__main__":
+    main()

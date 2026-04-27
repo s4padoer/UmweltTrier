@@ -8,9 +8,19 @@ import numpy as np
 import sys
 from umwelttrier.apis.load_data import get_engine
 
-engine = get_engine()
 
-with engine.connect() as conn:
+def map_niederschlagsart(code, niederschlagsart):
+    array = niederschlagsart.ident[niederschlagsart.code == code].to_numpy()
+    if(len(array)) != 1:
+        return None
+    else:
+        return array[0] 
+    
+
+def main():
+    engine = get_engine()
+
+    with engine.connect() as conn:
         query = text("SELECT MAX(zeitpunkt) FROM niederschlag")
         result = conn.execute(query)
         lastDate = result.fetchone()[0]
@@ -30,59 +40,56 @@ with engine.connect() as conn:
                                     JOIN dienst ON produkt.dienst_ident = dienst.ident
                                     WHERE dienst.kurzname = 'dwd' AND produkt.kurzname = 'precipitation height'
                                     """), engine)
-        
-if produkt.shape[0] != 1:
-    print("Kein oder zu viele Produkte gefunden!")
-    sys.exit()
 
-wetterstation_petrisberg = wetterstationen["ident"][wetterstationen["stationid"] == "5100"].to_numpy()[0]
-wetterstation_zewen = wetterstationen["ident"][wetterstationen["stationid"] == "5099"].to_numpy()[0]
- 
- 
-startDate = lastDate + dt.timedelta(days=1)
+    if produkt.shape[0] != 1:
+        print("Kein oder zu viele Produkte gefunden!")
+        sys.exit()
 
-gestern = dt.datetime.now() - dt.timedelta(days=1)
-
-if startDate.date() >= gestern.date():
-    sys.exit()
-
-request = DwdObservationRequest(
-    parameters=[("daily", "climate_summary", "precipitation_height"), ("daily", "climate_summary", "precipitation_form")],
-    start_date=startDate,
-    end_date=gestern
-)
-
-stations = request.filter_by_station_id(station_id=("5100", "5099", ))
-
-def map_niederschlagsart(code, niederschlagsart):
-    array = niederschlagsart.ident[niederschlagsart.code == code].to_numpy()
-    if(len(array)) != 1:
-        return None
-    else:
-        return array[0] 
-
-for result in stations.values.query():    
-    df = result.df
-    df = df.drop_nulls()
-    if (df is None) or (df.shape[0] == 0):
-        continue
-    df_niederschlag = df.filter( parameter="precipitation_height")
-    if df_niederschlag.shape[0] == 0:
-         continue
+    wetterstation_petrisberg = wetterstationen["ident"][wetterstationen["stationid"] == "5100"].to_numpy()[0]
+    wetterstation_zewen = wetterstationen["ident"][wetterstationen["stationid"] == "5099"].to_numpy()[0]
     
-    fehlende_daten = set(df["date"].unique().to_list()).difference(set(df_niederschlag["date"].unique().to_list()))
-    df = df.filter(~pl.col("date").is_in(fehlende_daten))
     
-    df_niederschlag = df_niederschlag.with_columns(niederschlagsart_code = df.filter( parameter="precipitation_form")["value"].to_numpy().astype(int),
+    startDate = lastDate + dt.timedelta(days=1)
+
+    gestern = dt.datetime.now() - dt.timedelta(days=1)
+
+    if startDate.date() >= gestern.date():
+        sys.exit()
+
+    request = DwdObservationRequest(
+        parameters=[("daily", "climate_summary", "precipitation_height"), ("daily", "climate_summary", "precipitation_form")],
+        start_date=startDate,
+        end_date=gestern
+    )
+
+    stations = request.filter_by_station_id(station_id=("5100", "5099", ))
+
+    for result in stations.values.query():    
+        df = result.df
+        df = df.drop_nulls()
+        if (df is None) or (df.shape[0] == 0):
+            continue
+        df_niederschlag = df.filter( parameter="precipitation_height")
+        if df_niederschlag.shape[0] == 0:
+            continue
+            
+        fehlende_daten = set(df["date"].unique().to_list()).difference(set(df_niederschlag["date"].unique().to_list()))
+        df = df.filter(~pl.col("date").is_in(fehlende_daten))
+
+        df_niederschlag = df_niederschlag.with_columns(niederschlagsart_code = df.filter( parameter="precipitation_form")["value"].to_numpy().astype(int),
                                                    wert = df_niederschlag["value"],
                                                    zeitpunkt = df_niederschlag["date"])
     
-    df_niederschlag = df_niederschlag.drop(["dataset", "value", "quality", "date", "parameter"])
-    df_niederschlag = df_niederschlag.with_columns(
-        wetterstation_ident=df_niederschlag["station_id"].map_elements(lambda x: wetterstation_petrisberg if x =='05100' else wetterstation_zewen, return_dtype=int),
-        produkt_ident = produkt.ident.iloc[0],
-        niederschlagsart_ident = df_niederschlag["niederschlagsart_code"].map_elements(lambda x: map_niederschlagsart(x, niederschlagsart), return_dtype=int))
+        df_niederschlag = df_niederschlag.drop(["dataset", "value", "quality", "date", "parameter"])
+        df_niederschlag = df_niederschlag.with_columns(
+            wetterstation_ident=df_niederschlag["station_id"].map_elements(lambda x: wetterstation_petrisberg if x =='05100' else wetterstation_zewen, return_dtype=int),
+            produkt_ident = produkt.ident.iloc[0],
+            niederschlagsart_ident = df_niederschlag["niederschlagsart_code"].map_elements(lambda x: map_niederschlagsart(x, niederschlagsart), return_dtype=int))
+
+        df_niederschlag = df_niederschlag.drop(["station_id", "niederschlagsart_code"])
+        df = df_niederschlag.to_pandas()
+        df.to_sql("niederschlag", con=engine, if_exists="append", index=False)
     
-    df_niederschlag = df_niederschlag.drop(["station_id", "niederschlagsart_code"])
-    df = df_niederschlag.to_pandas()
-    df.to_sql("niederschlag", con=engine, if_exists="append", index=False)
+
+if __name__ == "__main__":
+    main()
