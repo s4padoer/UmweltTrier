@@ -23,10 +23,10 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: python -m umwelttrier.apis.api_pegelonline.py
-           python -m umwelttrier.apis.api_umweltbundesamt.py
-           python -m umwelttrier.apis.api_wetterdienst_niederschlag.py
-           python -m umwelttrier.apis.api_wetterdienst_temperatur.py
+      run: python -m umwelttrier.apis.api_pegelonline
+           python -m umwelttrier.apis.api_umweltbundesamt
+           python -m umwelttrier.apis.api_wetterdienst_niederschlag
+           python -m umwelttrier.apis.api_wetterdienst_temperatur
     - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
