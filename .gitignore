@@ -10,3 +10,6 @@ first_edits/
 downloads/
 venv/
 logs/
+src/umwelttrier.egg-info/
+src/umwelttrier/apis/__pycache__/
+src/umwelttrier/__pycache__/

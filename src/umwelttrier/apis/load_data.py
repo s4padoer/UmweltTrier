@@ -10,7 +10,8 @@ from sqlalchemy import create_engine
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL is None:
     from dotenv import load_dotenv
-    load_dotenv(".env") 
+    pfad = os.path.join( os.path.dirname(__file__), "..", ".env")
+    load_dotenv(pfad) 
     DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_engine():

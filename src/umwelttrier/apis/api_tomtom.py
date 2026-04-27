@@ -33,7 +33,8 @@ def main():
     TOMTOM_KEY = os.environ.get("TOMTOM_KEY")
     if TOMTOM_KEY is None:
         from dotenv import load_dotenv
-        load_dotenv(".env") 
+        pfad = os.path.join( os.path.dirname(__file__), "..", ".env")
+        load_dotenv(pfad) 
         TOMTOM_KEY = os.environ.get("TOMTOM_KEY")
 
     baseURL = "api.tomtom.com/traffic/services"
