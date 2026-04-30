@@ -17,7 +17,7 @@ jobs:
       with:
         python-version: '3.12'
     - name: Install dependencies
-      uses: astral-sh/uv@v7
+      uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
         version: latest
@@ -27,7 +27,7 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: uv run python -m umwelttrier.apis.api_sentinel.py
+      run: uv run python -m umwelttrier.apis.api_sentinel
     - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
