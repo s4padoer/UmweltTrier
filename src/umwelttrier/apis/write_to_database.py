@@ -19,7 +19,7 @@ def parse_database_url(database_url):
     }
 
 
-def remove_first_x_lines(text, x):
+def remove_first_x_lines(text, x) -> str:
     # Den Text in Zeilen aufteilen
     lines = text.splitlines()
     # Die ersten zwei Zeilen entfernen und die restlichen Zeilen wieder zusammenfügen
@@ -29,6 +29,9 @@ def write_to_database(file_path):
     filename = os.path.basename(file_path)
     
     jahr_datum = re.search(r'\d{4}_\d{2}', filename)
+    if not jahr_datum:
+        raise ValueError("Filename does not match expected pattern")
+    
     jahr, monat = map(int, jahr_datum.group().split("_"))
     
     with rasterio.open(file_path) as src:

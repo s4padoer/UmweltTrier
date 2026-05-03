@@ -15,13 +15,7 @@ if DATABASE_URL is None:
     DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_engine():
-    #databaseurl = "postgresql://{user}:{password}@{host}:{port}/{dbname}".format(
-    #    user=config["user"],
-    #    password=config["password"],
-    #    host=config["host"],
-    #    port=config["port"],
-    #    dbname=config["dbname"]
-    #)
-    #engine = create_engine(databaseurl)
+    if DATABASE_URL is None:
+        raise ValueError("DATABASE_URL environment variable is not set")
     engine = create_engine(DATABASE_URL)
     return engine

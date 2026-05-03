@@ -19,7 +19,8 @@ def main():
     with engine.connect() as conn:
         query = text("SELECT MAX(zeitpunkt) FROM temperatur")
         result = conn.execute(query)
-        lastDate = result.fetchone()[0]
+        row = result.fetchone()
+        lastDate = row[0] if row else dt.datetime(1900, 1, 1)
 
     startDate = lastDate + dt.timedelta(days=1)
 
@@ -55,6 +56,8 @@ def main():
             query = text("SELECT MAX(ident) FROM temperatur")
             result = conn.execute(query)
             max_ident = result.scalar()
+            if max_ident is None:
+                continue
 
         pandasDF = pd.DataFrame({ "ident" : np.arange(max_ident+1, max_ident + df.shape[0]+1),
                              "produkt_ident" : df["produkt_ident"],
