@@ -7,7 +7,6 @@ import os
 import pandas as pd
 import threading
 
-from sshtunnel import SSHTunnelForwarder
 
 lock = threading.Lock()
 DATABASE_READONLY_URL = os.environ.get("DATABASE_READONLY_URL")

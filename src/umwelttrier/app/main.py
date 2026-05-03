@@ -1,11 +1,10 @@
 from dash import Dash, html, dcc
 from dotenv import load_dotenv
 from flask import Flask
+import os
 from pathlib import Path
 from threading import Thread
 
-# Lädt .env aus dem Projektroot
-load_dotenv(Path(__file__).parent.parent.parent.parent / '.env')
 
 from umwelttrier.app.layouts.main_layout import update_figure
 from umwelttrier.app.load_data import listen_for_notifications
