@@ -1,6 +1,9 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=65.5.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["src/umwelttrier"]
 
 [project]
 name = "umwelttrier.api"
@@ -19,4 +22,4 @@ dependencies = [
 ]
 
 [project.scripts]
-update = "umwelttrier.api.main:app"
+update = "umwelttrier.api.main:update"

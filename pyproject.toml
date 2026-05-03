@@ -6,6 +6,15 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 include = ["src/umwelttrier"]
 
+[project]
+name = "umwelttrier"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+app = "umwelttrier.app.main:app"
+
 [tool.uv.workspace]
 members = [
   "src/umwelttrier/app",
