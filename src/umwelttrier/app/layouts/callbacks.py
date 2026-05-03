@@ -1,7 +1,5 @@
 from dash.dependencies import Input, Output, State
 import dash
-from dash.exceptions import PreventUpdate
-import plotly.graph_objects as go
 from umwelttrier.app.layouts.main_layout import mainlayout, luftqualitaet_plot, alternative_luftqualitaet_plot
 from umwelttrier.app.layouts.main_layout import VERKEHRSPLOT_STATUS_ID, VERKEHRSPLOT_BUTTON_ID, VERKEHRSPLOT_STATUS_OHNE_VERKEHR, VERKEHRSPLOT_STATUS_MIT_VERKEHR
 # from umwelttrier.app.layouts.side_layout import get_map_layout

@@ -27,7 +27,6 @@ dependencies = [
     "wetterdienst==0.120.0",
     "flask>=3.1.3",
     "gunicorn>=25.3.0",
-    "psycopg2>=2.9.12",
 ]
 
 [dependency-groups]
