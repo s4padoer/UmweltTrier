@@ -1,7 +1,7 @@
 #import dash_leaflet as dl
 from dash import dcc
 from sqlalchemy import text
-from umwelttrier.app.load_data import make_query_df
+from app.load_data import make_query_df
 # from umwelttrier.app.figures.figure_ndvi import create_empty_ndvi_figure
 
 MAP_ID = "map"

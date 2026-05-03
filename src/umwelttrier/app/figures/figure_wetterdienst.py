@@ -2,7 +2,7 @@ from sqlalchemy import text
 import pandas as pd
 from plotly import graph_objects as go
 from plotly.subplots import make_subplots
-import umwelttrier.app.load_data as load_data
+import app.load_data as load_data
 from datetime import datetime
 
 current_year = datetime.now().year

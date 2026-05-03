@@ -1,7 +1,7 @@
 from dash.dependencies import Input, Output, State
 import dash
-from umwelttrier.app.layouts.main_layout import mainlayout, luftqualitaet_plot, alternative_luftqualitaet_plot
-from umwelttrier.app.layouts.main_layout import VERKEHRSPLOT_STATUS_ID, VERKEHRSPLOT_BUTTON_ID, VERKEHRSPLOT_STATUS_OHNE_VERKEHR, VERKEHRSPLOT_STATUS_MIT_VERKEHR
+from app.layouts.main_layout import mainlayout, luftqualitaet_plot, alternative_luftqualitaet_plot
+from app.layouts.main_layout import VERKEHRSPLOT_STATUS_ID, VERKEHRSPLOT_BUTTON_ID, VERKEHRSPLOT_STATUS_OHNE_VERKEHR, VERKEHRSPLOT_STATUS_MIT_VERKEHR
 # from umwelttrier.app.layouts.side_layout import get_map_layout
 # from umwelttrier.app.figures.figure_ndvi import get_ndvi_hist, create_empty_ndvi_figure
 # from umwelttrier.app.layouts.side_layout import MAP_ID, NDVI_ID
