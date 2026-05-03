@@ -34,7 +34,7 @@ def get_main_layout():
             dcc.Store(id=VERKEHRSPLOT_STATUS_ID, data=VERKEHRSPLOT_STATUS_OHNE_VERKEHR),
         ]),
         html.Br(),
-        dcc.Link('Zur Karte', href='/karte', className='button')
+        # dcc.Link('Zur Karte', href='/karte', className='button')
     ])
     return layout
 

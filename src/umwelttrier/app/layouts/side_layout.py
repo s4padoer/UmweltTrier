@@ -3,10 +3,10 @@ from dash import html, dcc
 import pandas as pd
 from sqlalchemy import text
 from umwelttrier.app.load_data import make_query_df
-from umwelttrier.app.figures.figure_ndvi import create_empty_ndvi_figure
+# from umwelttrier.app.figures.figure_ndvi import create_empty_ndvi_figure
 
 MAP_ID = "map"
-NDVI_ID = "ndvi-barplot"
+# NDVI_ID = "ndvi-barplot"
 SITE_ID = "karten-seite"
 
 
@@ -38,25 +38,25 @@ def get_map():
     return map
 
 
-def get_map_layout(ndvi_figure):
-    if ndvi_figure is None:
-        ndvi_figure = create_empty_ndvi_figure()
-    map = get_map()
-    map_layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.H1('Karte von Trier mit den Wetterstationen'),
-    map,
-    html.Div(id={'type': SITE_ID, 'page': 'karte'}),
-    dcc.Loading(
-    id="loading-ndvi",
-    type="default",
-    children=[html.Div([
-        html.H2("Vegetationsindex"),
-        dcc.Graph(id=NDVI_ID, figure=ndvi_figure)
-        ])
-    ]
-    ),
-    html.Br(),
-    dcc.Link('Zurück zur Hauptseite', href='/', className='button')
-    ])
-    return map_layout
+# def get_map_layout(ndvi_figure):
+#     if ndvi_figure is None:
+#         ndvi_figure = create_empty_ndvi_figure()
+#     map = get_map()
+#     map_layout = html.Div([
+#     dcc.Location(id='url', refresh=False),
+#     html.H1('Karte von Trier mit den Wetterstationen'),
+#     map,
+#     html.Div(id={'type': SITE_ID, 'page': 'karte'}),
+#     dcc.Loading(
+#     id="loading-ndvi",
+#     type="default",
+#     children=[html.Div([
+#         html.H2("Vegetationsindex"),
+#         dcc.Graph(id=NDVI_ID, figure=ndvi_figure)
+#         ])
+#     ]
+#     ),
+#     html.Br(),
+#     dcc.Link('Zurück zur Hauptseite', href='/', className='button')
+#     ])
+#     return map_layout
