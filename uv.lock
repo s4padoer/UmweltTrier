@@ -624,11 +624,6 @@ wheels = [
 name = "umwelttrier"
 version = "0.1.0"
 source = { editable = "." }
-
-[[package]]
-name = "umwelttrier-app"
-version = "0.1.0"
-source = { editable = "src/umwelttrier/app" }
 dependencies = [
     { name = "dash" },
     { name = "flask" },
@@ -651,6 +646,11 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "sqlalchemy", specifier = "==2.0.49" },
 ]
+
+[[package]]
+name = "umwelttrier-app"
+version = "0.1.0"
+source = { editable = "src/umwelttrier/app" }
 
 [[package]]
 name = "urllib3"
