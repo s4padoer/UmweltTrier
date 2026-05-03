@@ -1,0 +1,40 @@
+name: Weekly Security Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Jeden Montag um 00:00 UTC
+  workflow_dispatch:  # Ermöglicht manuelles Auslösen
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Export dependencies to requirements.txt
+      run: uv export --format requirements-txt --output-file requirements.txt
+
+    - name: Install safety
+      run: pip install safety
+
+    - name: Run security check
+      run: safety check --file requirements.txt --output json
+      continue-on-error: true  # Warnung statt Fehler, um den Workflow nicht zu stoppen
+
+    - name: Notify on security issues
+      if: failure()
+      run: |
+        echo "Sicherheitsprobleme gefunden! Überprüfe die Logs."
+        # Hier könnte eine Benachrichtigung hinzugefügt werden, z.B. an Slack oder Email
