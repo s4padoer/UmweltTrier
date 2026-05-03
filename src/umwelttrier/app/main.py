@@ -11,19 +11,26 @@ from umwelttrier.app.load_data import listen_for_notifications
 from umwelttrier.app.layouts.callbacks import register_callbacks
 
 server = Flask(__name__)
-app = Dash(__name__, server=server, suppress_callback_exceptions=True)
+app = Dash(
+    __name__,
+    server=server,
+    routes_pathname_prefix="/",
+)
 
-app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    dcc.Store(id='previous-pathname'),
-    html.Div(id='page-content')
-])
-register_callbacks(app)
+app.layout = html.Div("Hallo Dash auf Vercel!")
+# app = Dash(__name__, server=server, suppress_callback_exceptions=True)
+
+# app.layout = html.Div([
+#     dcc.Location(id='url', refresh=False),
+#     dcc.Store(id='previous-pathname'),
+#     html.Div(id='page-content')
+# ])
+# register_callbacks(app)
 
 
 
-if __name__ == '__main__':
-    notification_thread = Thread(target=listen_for_notifications, args=(update_figure,))
-    notification_thread.daemon = True
-    notification_thread.start()
-    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=8050)
+# if __name__ == '__main__':
+#     notification_thread = Thread(target=listen_for_notifications, args=(update_figure,))
+#     notification_thread.daemon = True
+#     notification_thread.start()
+#     app.run(debug=True, use_reloader=False, host='0.0.0.0', port=8050)
