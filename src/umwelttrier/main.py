@@ -6,9 +6,9 @@ from pathlib import Path
 from threading import Thread
 
 
-from umwelttrier.app.layouts.main_layout import update_figure
-from umwelttrier.app.load_data import listen_for_notifications
-from umwelttrier.app.layouts.callbacks import register_callbacks
+from app.layouts.main_layout import update_figure
+from app.load_data import listen_for_notifications
+from app.layouts.callbacks import register_callbacks
 
 server = Flask(__name__)
 app = Dash(
