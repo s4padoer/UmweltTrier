@@ -6,11 +6,16 @@ from pathlib import Path
 from threading import Thread
 
 
-from app.layouts.main_layout import update_figure
-from app.load_data import listen_for_notifications
-from app.layouts.callbacks import register_callbacks
+from umwelttrier.app.layouts.main_layout import update_figure
+from umwelttrier.app.load_data import listen_for_notifications
+from umwelttrier.app.layouts.callbacks import register_callbacks
 
 server = Flask(__name__)
+
+@server.route("/")
+def index():
+    return "Hallo, Vercel lädt mich jetzt!"
+
 app = Dash(
     __name__,
     server=server,
