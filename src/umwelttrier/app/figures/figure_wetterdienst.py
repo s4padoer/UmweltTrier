@@ -4,6 +4,9 @@ import plotly_express as px
 from plotly import graph_objects as go
 from plotly.subplots import make_subplots
 import umwelttrier.app.load_data as load_data
+from datetime import datetime
+
+current_year = datetime.now().year
 
 
 def get_referenzdata():
@@ -12,14 +15,18 @@ def get_referenzdata():
     # Zwei Wetterstationen j- also immer zwei werte...
     avg_referenz = referenz.groupby(["monat", "tag"])["wert"].mean().to_frame()
     avg_referenz = avg_referenz.reset_index()
-    avg_referenz["zeitpunkt"] = pd.to_datetime(dict(year = 2024, month=avg_referenz["monat"], day = avg_referenz["tag"])) 
+    # Filter out invalid dates like Feb 29 in non-leap years
+    avg_referenz = avg_referenz[~((avg_referenz.tag == 29) & (avg_referenz.monat == 2))]
+    avg_referenz["zeitpunkt"] = pd.to_datetime(avg_referenz.assign(year=current_year).rename(columns={"monat": "month", "tag": "day"})[["year", "month", "day"]])
     
     referenz_query = "SELECT * FROM referenz_niederschlag"
     referenz = load_data.make_query_df(referenz_query)
     # Zwei Wetterstationen j- also immer zwei werte...
     avg_referenz2 = referenz.groupby(["monat", "tag"])["wert"].mean().to_frame()
     avg_referenz2 = avg_referenz.reset_index()
-    avg_referenz2["zeitpunkt"] = pd.to_datetime(dict(year = 2024, month=avg_referenz["monat"], day = avg_referenz["tag"])) 
+    # Filter out invalid dates like Feb 29 in non-leap years
+    avg_referenz2 = avg_referenz2[~((avg_referenz2.tag == 29) & (avg_referenz2.monat == 2))]
+    avg_referenz2["zeitpunkt"] = pd.to_datetime(avg_referenz2.assign(year=current_year).rename(columns={"monat": "month", "tag": "day"})[["year", "month", "day"]])
     return avg_referenz, avg_referenz2
 
 
@@ -36,8 +43,8 @@ def get_timeseries_temperatur():
                                          (referenzdata_percip.zeitpunkt.dt.month < d.month)]
         new_ref_temp = new_ref_temp[~((new_ref_temp.zeitpunkt.dt.day == 29)&(new_ref_temp.zeitpunkt.dt.month==2))]
         new_ref_percip = new_ref_percip[~((new_ref_percip.zeitpunkt.dt.day == 29)&(new_ref_percip.zeitpunkt.dt.month==2))]
-        new_ref_temp.zeitpunkt = pd.to_datetime(dict(year = d.year, month= new_ref_temp.zeitpunkt.dt.month, day = new_ref_temp.zeitpunkt.dt.day))
-        new_ref_percip.zeitpunkt = pd.to_datetime(dict(year = d.year, month= new_ref_percip.zeitpunkt.dt.month, day = new_ref_percip.zeitpunkt.dt.day))
+        new_ref_temp.zeitpunkt = new_ref_temp.zeitpunkt.map(lambda x: x.replace(year=d.year))
+        new_ref_percip.zeitpunkt = new_ref_percip.zeitpunkt.map(lambda x: x.replace(year=d.year))
         referenzdata_temp = pd.concat([referenzdata_temp, new_ref_temp])
         referenzdata_percip = pd.concat([referenzdata_percip, new_ref_percip])
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -50,7 +57,7 @@ def get_timeseries_temperatur():
         title_text='Niederschlagsmenge in mm',
         secondary_y=True,
     )
-    fig.update_layout(title_text="Tagestemperatur und Niederschlagsmenge 2024",
+    fig.update_layout(title_text=f"Tagestemperatur und Niederschlagsmenge {current_year}",
                     legend=dict(
                     orientation="h",  # Horizontale Ausrichtung
                     yanchor="bottom",
@@ -71,7 +78,7 @@ def get_timeseries_temperatur():
     )
     fig.add_trace(
         go.Scatter(x=currentdata_temp["zeitpunkt"], y=currentdata_temp["wert"],
-                   line=dict(color="red"), name="Durchschnittl. Tagestemperatur 2024",
+                   line=dict(color="red"), name=f"Durchschnittl. Tagestemperatur {current_year}",
                    hovertemplate="%{x}<br>%{y:.1f} °C<extra></extra>"),
         secondary_y=False
     )
@@ -87,7 +94,7 @@ def get_timeseries_temperatur():
     )
     fig.add_trace(
         go.Scatter(x=currentdata_percip["zeitpunkt"], y=currentdata_percip["wert"],
-                   line=dict(color="blue"), name="Tagesniederschlag 2024",
+                   line=dict(color="blue"), name=f"Tagesniederschlag {current_year}",
                    hovertemplate="%{x}<br>%{y:.1f} mm<extra></extra>"),
         secondary_y=True
     )
@@ -116,6 +123,6 @@ def get_currentdata():
 
 def update_figure(temperatur_figure):
     avg_temp, avg_percip = get_currentdata()
-    temperatur_figure.update_traces(selector=dict(name = 'Durchschnittl. Tagestemperatur 2024'), x=avg_temp['zeitpunkt'], y=avg_temp['wert'])
-    temperatur_figure.update_traces(selector=dict(name = "Tagesniederschlag 2024"), x=avg_percip['zeitpunkt'], y=avg_temp['wert'])
+    temperatur_figure.update_traces(selector=dict(name = f'Durchschnittl. Tagestemperatur {current_year}'), x=avg_temp['zeitpunkt'], y=avg_temp['wert'])
+    temperatur_figure.update_traces(selector=dict(name = f"Tagesniederschlag {current_year}"), x=avg_percip['zeitpunkt'], y=avg_temp['wert'])
 

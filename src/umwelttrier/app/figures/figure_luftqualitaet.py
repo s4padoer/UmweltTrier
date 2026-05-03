@@ -2,6 +2,7 @@ from umwelttrier.app.load_data import make_query_df
 from umwelttrier.app.editing import format_date_german
 from sqlalchemy import text
 import pandas as pd
+from datetime import datetime
 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -9,6 +10,8 @@ from plotly.subplots import make_subplots
 # Setzen der Locale auf Deutsch
 #import locale
 #locale.setlocale(locale.LC_TIME, 'de_DE.UTF-8')
+
+current_year = datetime.now().year
 
 def get_luftqualitaet_data():
     query = """
@@ -116,7 +119,7 @@ def get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid):
 
     # Layout anpassen
     fig.update_layout(
-        title_text='Luftqualitätsdaten 2024',
+        title_text=f'Luftqualitätsdaten {current_year}',
         height=600,
         legend=dict(
             orientation="h",
