@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.scripts]
-app = "src.umwelttrier.app.main:app"
+app = "umwelttrier.app.main:app"
 
 [tool.vercel.scripts]
 build = "python -m src.umwelttrier.app.main"
