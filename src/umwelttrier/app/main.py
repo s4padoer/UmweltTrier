@@ -1,5 +1,6 @@
 from dash import Dash, html, dcc
 from dotenv import load_dotenv
+from flask import Flask
 from pathlib import Path
 from threading import Thread
 
@@ -10,7 +11,8 @@ from umwelttrier.app.layouts.main_layout import update_figure
 from umwelttrier.app.load_data import listen_for_notifications
 from umwelttrier.app.layouts.callbacks import register_callbacks
 
-app = Dash(__name__,suppress_callback_exceptions=True)
+server = Flask(__name__)
+app = Dash(__name__, server=server, suppress_callback_exceptions=True)
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
