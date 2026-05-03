@@ -32,7 +32,7 @@ dependencies = [
 app = "umwelttrier.main:app"
 
 [tool.vercel.scripts]
-build = "python -m src.umwelttrier.app.main"
+build = "python -m umwelttrier.main"
 
 [dependency-groups]
 dev = [
