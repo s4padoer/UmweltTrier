@@ -35,12 +35,6 @@ dependencies = [
     "gunicorn>=25.3.0",
 ]
 
-[project.scripts]
-app = "umwelttrier.main:app"
-
-[tool.vercel.scripts]
-build = "python -m umwelttrier.main"
-
 [dependency-groups]
 dev = [
     "pipdeptree>=2.35.2",
