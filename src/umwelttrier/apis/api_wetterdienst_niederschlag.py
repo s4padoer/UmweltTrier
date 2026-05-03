@@ -4,7 +4,6 @@ import pandas as pd
 import polars as pl
 from wetterdienst.provider.dwd.observation import DwdObservationRequest, DwdObservationMetadata
 from sqlalchemy import text
-import numpy as np
 import sys
 from umwelttrier.apis.load_data import get_engine
 

@@ -24,12 +24,6 @@ def main():
     einheiten = pd.read_sql_query(query, engine)
     produkt = pd.read_sql_query(text("SELECT * FROM produkt WHERE kurzname = 'Traffic API'"), engine)
 
-    #pfad_tomtom = os.path.join(os.path.dirname(__file__), "tomtom.json")
-    #
-    #with open(pfad_tomtom, "r") as configfile:
-    #    tomtom_access = json.load(configfile)
-    #    key = tomtom_access["key"]
-
     TOMTOM_KEY = os.environ.get("TOMTOM_KEY")
     if TOMTOM_KEY is None:
         from dotenv import load_dotenv
