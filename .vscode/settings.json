@@ -1,3 +1,15 @@
 {
-    "python.terminal.useEnvFile": true
+    "python.terminal.useEnvFile": true,
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.extraPaths": [
+        "./src"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintPath": ".venv/bin/pylint",
+    "python.linting.ruffEnabled": true,
+    "python.linting.ruffPath": ".venv/bin/ruff"
 }

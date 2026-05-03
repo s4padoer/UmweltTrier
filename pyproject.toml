@@ -30,4 +30,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pipdeptree>=2.35.2",
+    "ruff>=0.0.0",
 ]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "C90", "N", "TID"]
+exclude = ["__pycache__", ".venv", "build", "dist", ".git"]
+target-version = "py312"
