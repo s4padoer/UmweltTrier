@@ -1,28 +1,23 @@
-import datetime as dt
 import calendar
 from collections import defaultdict
-import tempfile
-
-from shapely import geometry
-
-import rasterio.transform
-import rasterio.warp
+import datetime as dt
 from eodag import EODataAccessGateway
-from shapely.geometry import shape
-from shapely import wkt, box
+import json
+import numpy as np
+import os
+import pyproj
 import rasterio
 from rasterio.mask import mask
 from rasterio.transform import from_bounds
 from rasterio.warp import calculate_default_transform, reproject, Resampling
+import re
+from shapely.geometry import shape
+from shapely import wkt, box
+import shutil
 from sqlalchemy import text
 import sys
+import tempfile
 import yaml
-import json
-import os
-import re
-import numpy as np
-import pyproj
-import shutil
 
 from umwelttrier.apis.write_to_database import write_to_database
 from umwelttrier.apis.load_data import get_engine
@@ -31,7 +26,7 @@ from umwelttrier.apis.load_data import get_engine
 ##########################################################
 # Definiere Funktionen
 #########################################################
-def find_files_with_extension(directory, extension):
+def find_files_with_extension(directory, extension) -> list[str]:
     matching_files = []
     for root, dirs, files in os.walk(directory):
         for file in files:
@@ -40,7 +35,7 @@ def find_files_with_extension(directory, extension):
     return matching_files
 
 # Funktion zum Transformieren der Koordinaten
-def covers_geojson(product, geojson_polygon):
+def covers_geojson(product, geojson_polygon) -> bool:
     product_bbox = box(*product.geometry.bounds)
     return product_bbox.contains(geojson_polygon)
 
@@ -69,8 +64,10 @@ def reproject_image_data(scaled_data, profile, bbox, ausschnitt):
         profile["crs"], dst_crs, src_width, src_height, 
         left=bbox.left, right=bbox.right, bottom=bbox.bottom, top = bbox.top
     )
+    assert full_dst_width is not None
+    assert full_dst_height is not None
     # Reprojektion des gesamten Bildes
-    full_resampled = np.zeros((1, full_dst_height, full_dst_width), dtype=np.uint16)
+    full_resampled = np.zeros(shape=(1, int(full_dst_height), int(full_dst_width)), dtype=np.uint16)
     reproject(
         source=scaled_data,
         destination=full_resampled,
@@ -90,7 +87,7 @@ def reproject_image_data(scaled_data, profile, bbox, ausschnitt):
     )
     print(full_resampled.shape)
     # Führen Sie den Masking-Prozess 
-    with rasterio.io.MemoryFile() as memfile:
+    with rasterio.MemoryFile() as memfile:
         with memfile.open(driver='GTiff', 
                       height=full_resampled.shape[1], 
                       width=full_resampled.shape[2], 
@@ -105,7 +102,7 @@ def reproject_image_data(scaled_data, profile, bbox, ausschnitt):
                                             crop=True, all_touched=True,
                                             pad=True)
             height, width = out_image.shape[1:] 
-            new_transform = from_bounds(*ausschnitt.bounds, width, height)
+            new_transform = from_bounds(ausschnitt.bounds[0], ausschnitt.bounds[1], ausschnitt.bounds[2], ausschnitt.bounds[3], width, height)
             print(out_image.shape)
             # Aktualisieren Sie die Metadaten
             kwargs.update(
@@ -134,20 +131,29 @@ def write_image(image_data, profile, filepath):
 def get_date_from_filename(filename):
     dateformat = "%Y%m%d"
     pattern = r'\d{8}'
+    match = re.search(pattern, filename)
+    if not match:
+        print("Formatierungsfehler: kein Datum im Dateinamen gefunden")
+        return None
     try:
-        match = re.search(pattern, filename)
         datum = dt.datetime.strptime(match.group(), dateformat)
         return datum
-    except:
-        print("Formatierungsfehler")
+    except ValueError:
+        print("Formatierungsfehler: ungültiges Datum")
+        return None
 
 
 def main():
+    # Problem: Diese Tabelle ist zu gross fuer 
+    # die freie Version von Supabase
+
+    return 
     #############################################
     # Laden der Parameter
     #############################################
     # Laden der separaten YAML-Datei
-    with open('apis/assets/eodag.yaml', 'r') as config_file:
+    pfad = os.path.join(os.path.dirname(__file__), 'assets', 'eodag.yaml')
+    with open(pfad, 'r') as config_file:
         config = yaml.safe_load(config_file)
         config_string = yaml.dump(config)
 
