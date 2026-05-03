@@ -19,9 +19,11 @@ def main():
     with engine.connect() as conn:
         query = text("SELECT MAX(zeitpunkt) FROM wassertemperatur_mosel")
         result = conn.execute(query)
-        lastDate = result.fetchone()[0]
+        lastDate = result.fetchone()
+        lastDate = lastDate[0] if lastDate else dt.datetime.now()
         result = conn.execute(text("SELECT MAX(ident) FROM wassertemperatur_mosel"))
-        lastIdent = result.fetchone()[0]
+        lastIdent = result.fetchone()
+        lastIdent = lastIdent[0] if lastIdent else 0
 
     datum = lastDate.date()
     gestern = (dt.datetime.now() - dt.timedelta(days=1)).date()

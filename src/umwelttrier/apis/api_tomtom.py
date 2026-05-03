@@ -37,6 +37,9 @@ def main():
         load_dotenv(pfad) 
         TOMTOM_KEY = os.environ.get("TOMTOM_KEY")
 
+    if TOMTOM_KEY is None:
+        raise ValueError("TOMTOM_KEY environment variable not set")
+
     baseURL = "api.tomtom.com/traffic/services"
     versionNumber = 4
     style = "relative0"
@@ -66,6 +69,9 @@ def main():
         results["wetterstation_ident"] = results["frc"].apply(lambda x: wetterstation_ostallee.iloc[0] if x == "FRC1" else wetterstation_pfalzel.iloc[0])
         return results
                 
+    if all_results is None:
+        return
+    
     results = ordne_zu_wetterstation(all_results, wetterstationen) 
     results = results.loc[:, ~results.columns.isin(["frc", "coordinates","@version"])]
     results.loc[:,["zeitpunkt"]] = timestamp
