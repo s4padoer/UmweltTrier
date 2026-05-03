@@ -1,5 +1,5 @@
 from sqlalchemy import text
-import umwelttrier.app.load_data as load_data 
+from ..utils import load_data as load_data 
 
 def update_moseltemperatur_und_fisch():
     assets_dir = "/assets"

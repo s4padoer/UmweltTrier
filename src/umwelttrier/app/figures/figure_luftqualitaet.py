@@ -1,4 +1,4 @@
-from umwelttrier.app.load_data import make_query_df
+from ..utils.load_data import make_query_df
 from sqlalchemy import text
 from datetime import datetime
 

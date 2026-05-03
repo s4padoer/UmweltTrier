@@ -1,7 +1,7 @@
 from dash import html, dcc
-from umwelttrier.app.figures.figure_wetterdienst import get_timeseries_temperatur
-from umwelttrier.app.figures.figure_luftqualitaet import get_luftqualitaet_plot, get_alternative_luftqualitaet_plot
-from umwelttrier.app.figures.figure_moselwasser import update_moseltemperatur_und_fisch
+from ..figures.figure_wetterdienst import get_timeseries_temperatur
+from ..figures.figure_luftqualitaet import get_luftqualitaet_plot, get_alternative_luftqualitaet_plot
+from ..figures.figure_moselwasser import update_moseltemperatur_und_fisch
 
 VERKEHRSPLOT_STATUS_ID = 'verkehrsplot-status'
 VERKEHRSPLOT_BUTTON_ID = 'verkehrsdaten-button'

@@ -5,7 +5,7 @@ from threading import Thread
 
 
 from .layouts.main_layout import update_figure
-from .load_data import listen_for_notifications
+from .utils.load_data import listen_for_notifications
 from .layouts.callbacks import register_callbacks
 
 server = Flask(__name__)
