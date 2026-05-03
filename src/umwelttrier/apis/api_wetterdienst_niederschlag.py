@@ -22,7 +22,8 @@ def main():
     with engine.connect() as conn:
         query = text("SELECT MAX(zeitpunkt) FROM niederschlag")
         result = conn.execute(query)
-        lastDate = result.fetchone()[0]
+        fetch = result.fetchone()
+        lastDate = fetch[0] if fetch is not None else dt.datetime(2000,1,1)
         query = text(""" SELECT wetterstation.* FROM wetterstation 
                      JOIN dienst ON wetterstation.dienst_ident = dienst.ident 
                      WHERE dienst.kurzname = 'dwd'

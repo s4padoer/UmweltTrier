@@ -1,10 +1,7 @@
 import requests
-import os
 import pandas as pd
 import datetime as dt
 from sqlalchemy import create_engine, text
-import json
-import numpy as np
 from umwelttrier.apis.load_data import get_engine
 
 
@@ -55,7 +52,8 @@ def main():
         result = conn.execute(query)
         lastDate = result.fetchall()
         result = conn.execute(text("SELECT MAX(ident) FROM luftqualitaet"))
-        lastIdent = result.fetchone()[0]
+        fetch = result.fetchone()
+        lastIdent = fetch[0] if fetch is not None else 0
    
     gestern = dt.datetime.now() - dt.timedelta(days=1)
 

@@ -18,23 +18,23 @@ def get_map():
     markers = []
     for index, station in wetterstationen.iterrows():
         tooltip = "{stationname} \n Liefert Daten an: {dienstname}".format(stationname = station["stationname"], dienstname = station["dienstname"]) 
-        marker = dl.Marker(position=[station["geo_breite"], station["geo_laenge"]], 
-                           children=[dl.Tooltip(
-                                   dcc.Markdown(tooltip, style={'white-space': 'pre-line'}),
-                           )])
-        markers.append(marker)
+        # marker = dl.Marker(position=[station["geo_breite"], station["geo_laenge"]], 
+        #                    children=[dl.Tooltip(
+        #                            dcc.Markdown(tooltip, style={'white-space': 'pre-line'}),
+        #                    )])
+        # markers.append(marker)
     
     # Zentrum von Trier
     center = [49.75, 6.63]
-    map = dl.Map(center=center, zoom=13, children=[
-        dl.TileLayer(),  # OpenStreetMap als Basiskarte
-        dl.LayerGroup(id='layer-group'),
-        *markers
-        ], style={'width': '100%', 'height': '500px'}, 
-        id=MAP_ID
-        )
+    # map = dl.Map(center=center, zoom=13, children=[
+    #     dl.TileLayer(),  # OpenStreetMap als Basiskarte
+    #     dl.LayerGroup(id='layer-group'),
+    #     *markers
+    #     ], style={'width': '100%', 'height': '500px'}, 
+    #     id=MAP_ID
+    #     )
 
-    return map
+    return None # map
 
 
 # def get_map_layout(ndvi_figure):

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "umwelttrier.api"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+dependencies = [
+    "numpy==2.4.4",
+    "pandas==3.0.2",
+    "polars==1.40.1",
+    "python-dotenv==1.2.2",
+    "requests==2.33.1",
+    "sqlalchemy==2.0.49",
+    "psycopg2-binary==2.9.10",
+    "wetterdienst==0.120.0",
+]
+
+[project.scripts]
+update = "umwelttrier.api.main:app"
