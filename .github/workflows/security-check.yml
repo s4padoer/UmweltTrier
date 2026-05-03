@@ -30,7 +30,7 @@ jobs:
       run: pip install safety
 
     - name: Run security check
-      run: safety check --file requirements.txt --output json
+      run: safety scan --file requirements.txt
       continue-on-error: true  # Warnung statt Fehler, um den Workflow nicht zu stoppen
 
     - name: Notify on security issues
