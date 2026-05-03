@@ -1444,6 +1444,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pipdeptree"
+version = "2.35.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fd/10/1c7c74fd7e6072a5dc0f981d69dfcf7acf6bc7f12593b3a7c3d232f569d5/pipdeptree-2.35.2.tar.gz", hash = "sha256:5f338ca966f0596c089245324dd6b27031073746d345a6b2b7594450bea82c4a", size = 74605, upload-time = "2026-05-01T03:35:49.716Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/be/d33b6a259d8e41af04d19300b4a289d6d08ad696cf5f5e9e64c01d0e18bf/pipdeptree-2.35.2-py3-none-any.whl", hash = "sha256:c8e67055c055cc0966751dc1275c93b5ae05eedee4207cdef543ff4c907061dc", size = 48974, upload-time = "2026-05-01T03:35:48.296Z" },
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.9.6"
 source = { registry = "https://pypi.org/simple" }
@@ -2592,6 +2604,11 @@ dependencies = [
     { name = "wetterdienst" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pipdeptree" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "auto-mix-prep", specifier = "==0.2.0" },
@@ -2615,6 +2632,9 @@ requires-dist = [
     { name = "sshtunnel", specifier = "==0.4.0" },
     { name = "wetterdienst", specifier = "==0.120.0" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pipdeptree", specifier = ">=2.35.2" }]
 
 [[package]]
 name = "urllib3"

@@ -26,3 +26,8 @@ dependencies = [
     "wetterdienst==0.120.0",
     "psycopg2>=2.9.12",
 ]
+
+[dependency-groups]
+dev = [
+    "pipdeptree>=2.35.2",
+]
