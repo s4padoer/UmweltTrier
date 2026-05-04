@@ -9,7 +9,11 @@ from .utils.load_data import listen_for_notifications
 from .layouts.callbacks import register_callbacks
 
 server = Flask(__name__)
-app = Dash(__name__, server=server, suppress_callback_exceptions=True)
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_scripts = ['https://cdn.plot.ly/plotly-latest.min.js']
+app = Dash(__name__, server=server, external_stylesheets=external_stylesheets,
+           external_scripts=external_scripts, suppress_callback_exceptions=True)
+
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
