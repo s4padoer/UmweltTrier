@@ -11,5 +11,9 @@
       "src": "/(.*)",
       "dest": "src/umwelttrier/app/main.py"
     }
+  ],
+  "rewrites": [
+    {"source": "/assets/(.*)", "destination": "/assets/$1"},
+    {"source": "/(.*)", "destination": "/app.py"}
   ]
 }
