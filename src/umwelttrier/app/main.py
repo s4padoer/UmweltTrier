@@ -7,11 +7,14 @@ from threading import Thread
 from .layouts.main_layout import update_figure
 from .utils.load_data import listen_for_notifications
 from .layouts.callbacks import register_callbacks
+import plotly.graph_objects as go
+from dash.dependencies import Input, Output, State
 
 server = Flask(__name__)
 app = Dash(__name__, server=server, suppress_callback_exceptions=True, assets_folder='assets')
 app.scripts.config.serve_locally = False
 app.css.config.serve_locally = False
+app.index_string = app.index()
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),

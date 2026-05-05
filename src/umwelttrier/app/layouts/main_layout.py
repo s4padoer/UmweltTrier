@@ -39,7 +39,7 @@ def get_main_layout():
     return layout
 
 def update_figure():
-    update_figure(temperatur_plot)
+    #update_figure(temperatur_plot)
     mosel_temp, fisch_image = update_moseltemperatur_und_fisch()
     main_layout = get_main_layout(temperatur_plot, mosel_temp, fisch_image)
     
