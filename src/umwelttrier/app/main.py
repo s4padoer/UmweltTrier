@@ -10,7 +10,8 @@ from .layouts.callbacks import register_callbacks
 
 server = Flask(__name__)
 app = Dash(__name__, server=server, suppress_callback_exceptions=True, assets_folder='assets')
-
+app.scripts.config.serve_locally = False
+app.css.config.serve_locally = False
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
