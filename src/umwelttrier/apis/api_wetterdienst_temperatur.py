@@ -43,7 +43,7 @@ def main():
         if (df is None) or (df.shape[0] == 0):
             continue
         df = df.with_columns(
-            value=df["value"].map_elements(lambda x: kelvin_to_celsius(float(x)), return_dtype=float),
+            value=df["value"],            
             wetterstation_ident=df["station_id"].map_elements(lambda x: 1 if x =='05100' else 2, return_dtype=int),
             produkt_ident = 2)
         df = df.drop(["dataset", "parameter", "quality"])
