@@ -6,42 +6,57 @@ from typing import Callable, List
 import os
 import pandas as pd
 import threading
+from sqlalchemy.pool import QueuePool
 
 
 lock = threading.Lock()
 DATABASE_READONLY_URL = os.environ.get("DATABASE_READONLY_URL")
 if DATABASE_READONLY_URL is None:
     from dotenv import load_dotenv
-    pfad = os.path.join( os.path.dirname(__file__), "..", ".env")
+    pfad = os.path.join(os.path.dirname(__file__), "..", ".env")
     load_dotenv(pfad)
     DATABASE_READONLY_URL = os.environ.get("DATABASE_READONLY_URL")
 
+# Globale Engine mit Verbindungspooling
+engine = create_engine(
+    DATABASE_READONLY_URL,
+    poolclass=QueuePool,
+    pool_size=5,
+    max_overflow=2,
+    pool_timeout=30,
+    pool_recycle=3600,
+    pool_pre_ping=True
+)
 
 def make_query_df(query, params=None):
-    databaseurl = get_databaseurl()
-    engine = create_engine(databaseurl)
-    if params is not None and type(params) is dict:
-        result = pd.read_sql(query, engine, params=params)
-    else:
-        result = pd.read_sql(query, engine)
-    return result
-        
-    
+    try:
+        if params is not None and type(params) is dict:
+            result = pd.read_sql(query, engine, params=params)
+        else:
+            result = pd.read_sql(query, engine)
+        return result
+    except Exception as e:
+        print(f"Fehler bei make_query_df: {e}")
+        return pd.DataFrame()
+
 
 def make_query(query):
-    databaseurl = get_databaseurl()
-    engine = create_engine(databaseurl) 
-    with engine.connect() as conn:
-        result = conn.execute(query)
-        return result
-        
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(query)
+            return result
+    except Exception as e:
+        print(f"Fehler bei make_query: {e}")
+        return None
 
-def listen_for_notifications( *methods: Callable[[], None]):
-    databaseurl = get_databaseurl()
-    engine = create_engine(databaseurl) 
-    with engine.connect() as connection:
-        endless_observation(connection, methods)
-        
+
+def listen_for_notifications(*methods: Callable[[], None]):
+    try:
+        with engine.connect() as connection:
+            endless_observation(connection, methods)
+    except Exception as e:
+        print(f"Fehler bei listen_for_notifications: {e}")
+
 
 def get_databaseurl():
     return DATABASE_READONLY_URL
@@ -63,7 +78,6 @@ def endless_observation(connection, methods):
             while conn.notifies:
                 notify = conn.notifies.pop(0)
                 print(f"Received notification: {notify.payload}")
-                # Hier aktualisieren wir die Grafiken und Daten
                 for method in methods:
                     method()
             time.sleep(1)
