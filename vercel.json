@@ -15,5 +15,8 @@
       "src": "/(.*)",
       "dest": "src/umwelttrier/app/main.py"
     }
+  ],
+  "includeFiles": [
+    "src/umwelttrier/app/assets/**"
   ]
 }
