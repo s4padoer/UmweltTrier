@@ -30,6 +30,9 @@ members = [
   "src/umwelttrier/api"
 ]
 
+[tool.setuptools.package-data]
+"umwelttrier.app" = ["assets/*"]
+
 [tool.ruff]
 line-length = 100
 select = ["E", "F", "W", "C90", "N", "TID"]

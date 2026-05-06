@@ -8,11 +8,11 @@ VERKEHRSPLOT_BUTTON_ID = 'verkehrsdaten-button'
 VERKEHRSPLOT_STATUS_OHNE_VERKEHR = 'ohne_verkehr'
 VERKEHRSPLOT_STATUS_MIT_VERKEHR = 'mit_verkehr'
 
+# Initialisiere die Plots einmalig
 luftqualitaet_plot = get_luftqualitaet_plot()
 alternative_luftqualitaet_plot = get_alternative_luftqualitaet_plot()
 temperatur_plot = get_timeseries_temperatur()
 mosel_temp, fisch_image = update_moseltemperatur_und_fisch()
-
 
 def get_main_layout():
     layout = html.Div([
@@ -40,7 +40,6 @@ def get_main_layout():
 
 def update_figure():
     global mosel_temp, fisch_image, temperatur_plot, luftqualitaet_plot
-    #update_figure(temperatur_plot)
     mosel_temp, fisch_image = update_moseltemperatur_und_fisch()
     temperatur_plot = get_timeseries_temperatur()
     luftqualitaet_plot = get_luftqualitaet_plot()
@@ -48,4 +47,3 @@ def update_figure():
     
 
 mainlayout = get_main_layout()
-
