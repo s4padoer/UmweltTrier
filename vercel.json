@@ -9,7 +9,11 @@
   "builds": [
     {
       "src": "src/umwelttrier/app/main.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.12",
+        "install": ["uv pip install -e ."]
+      }
     }
   ],
   "routes": [
