@@ -6,7 +6,7 @@
       "use": "@vercel/python",
       "config": {
         "runtime": "python3.12",
-        "install": ["uv pip install -e ."]
+        "install": ["uv add . && pip install -e .", "uv pip list"]
       }
     }
   ],
