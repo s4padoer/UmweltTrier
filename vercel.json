@@ -19,7 +19,6 @@
     }
   ],
   "rewrites": [
-    {"source": "/assets/(.*)", "destination": "/assets/$1"},
-    {"source": "/(.*)", "destination": "/app.py"}
+    {"source": "/assets/(.*)", "destination": "/src/umwelttrier/app/assets/$1"}
   ]
 }
