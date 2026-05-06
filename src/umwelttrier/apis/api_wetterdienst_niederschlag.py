@@ -86,7 +86,7 @@ def main():
             produkt_ident = produkt.ident.iloc[0],
             niederschlagsart_ident = df_niederschlag["niederschlagsart_code"].map_elements(lambda x: map_niederschlagsart(x, niederschlagsart), return_dtype=int))
 
-        df_niederschlag = df_niederschlag.drop(["station_id", "niederschlagsart_code"])
+        df_niederschlag = df_niederschlag.drop(["station_id", "niederschlagsart_code", "resolution"])
         df = df_niederschlag.to_pandas()
         df.to_sql("niederschlag", con=engine, if_exists="append", index=False)
     
