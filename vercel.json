@@ -2,11 +2,7 @@
   "version": 2,
   "buildCommand": "bash build.sh",
   "functions":{
-      "src": "src/umwelttrier/app/main.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.12"
-      }
+      "src": "src/umwelttrier/app/main.py"
     },
   "routes": [
     {
