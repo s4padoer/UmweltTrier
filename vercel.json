@@ -5,8 +5,7 @@
       "src": "src/umwelttrier/app/main.py",
       "use": "@vercel/python",
       "config": {
-        "runtime": "python3.12",
-        "install": ["uv add . && pip install -e .", "uv pip list"]
+        "runtime": "python3.12"
       }
     }
   ],
