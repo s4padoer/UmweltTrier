@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "bash build.sh",
+  "installCommand": "bash build.sh",
   "builds": [
     {
       "src": "src/umwelttrier/app/main.py",
