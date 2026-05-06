@@ -11,12 +11,10 @@ import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 
 server = Flask(__name__)
-app = Dash(__name__, server=server, suppress_callback_exceptions=True, assets_folder='assets',
+app = Dash("Umwelt- und Klimadaten aus Trier", server=server, suppress_callback_exceptions=True, assets_folder='assets',
            external_scripts=[
         'https://cdn.plot.ly/plotly-latest.min.js'
     ])
-app.scripts.config.serve_locally = False
-app.css.config.serve_locally = False
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
