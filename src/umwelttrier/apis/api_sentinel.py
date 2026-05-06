@@ -1,5 +1,5 @@
 import calendar
-from collections import defaultdict
+#from collections import defaultdict
 import datetime as dt
 from eodag import EODataAccessGateway
 import json
