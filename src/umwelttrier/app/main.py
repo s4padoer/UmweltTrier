@@ -17,7 +17,6 @@ app = Dash(__name__, server=server, suppress_callback_exceptions=True, assets_fo
     ])
 app.scripts.config.serve_locally = False
 app.css.config.serve_locally = False
-app.index_string = app.index()
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
