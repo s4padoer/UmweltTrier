@@ -1,10 +1,10 @@
-import json
 from sqlalchemy import create_engine
 import time
 import select
-from typing import Callable, List
+from typing import Callable
 import os
 import pandas as pd
+from pathlib import Path
 import threading
 from sqlalchemy.pool import QueuePool
 
@@ -13,7 +13,7 @@ lock = threading.Lock()
 DATABASE_READONLY_URL = os.environ.get("DATABASE_READONLY_URL")
 if DATABASE_READONLY_URL is None:
     from dotenv import load_dotenv
-    pfad = os.path.join(os.path.dirname(__file__), "..", ".env")
+    pfad = Path(__file__).parent.parent.parent / ".env"
     load_dotenv(pfad)
     DATABASE_READONLY_URL = os.environ.get("DATABASE_READONLY_URL")
 
