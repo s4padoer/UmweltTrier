@@ -17,6 +17,9 @@ if DATABASE_READONLY_URL is None:
     load_dotenv(pfad)
     DATABASE_READONLY_URL = os.environ.get("DATABASE_READONLY_URL")
 
+if DATABASE_READONLY_URL is None:
+    raise ValueError("DATABASE_READONLY_URL ist nicht gesetzt. Bitte setzen Sie die Umgebungsvariable oder fügen Sie sie in die .env-Datei ein.")
+
 # Globale Engine mit Verbindungspooling
 engine = create_engine(
     DATABASE_READONLY_URL,
