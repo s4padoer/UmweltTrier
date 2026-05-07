@@ -43,7 +43,6 @@ def update_figure():
     mosel_temp, fisch_image = update_moseltemperatur_und_fisch()
     temperatur_plot = get_timeseries_temperatur()
     luftqualitaet_plot = get_luftqualitaet_plot()
-    #main_layout = get_main_layout(temperatur_plot, mosel_temp, fisch_image)
-    
 
+    
 mainlayout = get_main_layout()

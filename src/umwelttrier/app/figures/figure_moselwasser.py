@@ -2,7 +2,7 @@ from sqlalchemy import text
 from ..utils import load_data as load_data 
 
 def update_moseltemperatur_und_fisch():
-    assets_dir = "/assets"
+    assets_dir = ''
     query = text("SELECT wert, zeitpunkt FROM wassertemperatur_mosel WHERE zeitpunkt = (SELECT MAX(zeitpunkt) FROM wassertemperatur_mosel)")
     result = load_data.make_query(query)
     if result is None:

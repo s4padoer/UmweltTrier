@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
 
 server = Flask(__name__)
+server.static_folder = 'images'
 app = Dash("Umwelt- und Klimadaten aus Trier", server=server, suppress_callback_exceptions=True, assets_folder='assets')
 
 app.layout = html.Div([
@@ -20,6 +21,10 @@ app.layout = html.Div([
 ])
 register_callbacks(app)
 
+@server.route('/images/<path:filename>')
+def serve_assets(filename):
+    print(f"Anfrage für: {filename}")  # Debugging-Log
+    return server.send_static_file(filename)
 
 
 if __name__ == '__main__':
