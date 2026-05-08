@@ -109,11 +109,12 @@ def get_timeseries_temperatur():
     
 
 def get_currentdata():
-    temperatur_query = "SELECT * FROM temperatur"
+    aktuelles_jahr = datetime.today().year
+    temperatur_query = f"SELECT * FROM temperatur WHERE EXTRACT('year' from zeitpunkt) = {aktuelles_jahr}"
     df = load_data.make_query_df(temperatur_query)
     avg_temp = df.groupby(["zeitpunkt"])["wert"].mean().to_frame()
     avg_temp = avg_temp.reset_index()
-    percip_query = "SELECT * FROM niederschlag"
+    percip_query = f"SELECT * FROM niederschlag WHERE EXTRACT('year' from zeitpunkt) = {aktuelles_jahr}"
     df = load_data.make_query_df(percip_query)
     avg_percip = df.groupby(["zeitpunkt"])["wert"].mean().to_frame()
     avg_percip = avg_percip.reset_index()

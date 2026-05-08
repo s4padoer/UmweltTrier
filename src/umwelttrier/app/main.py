@@ -23,7 +23,6 @@ register_callbacks(app)
 
 @server.route('/images/<path:filename>')
 def serve_assets(filename):
-    print(f"Anfrage für: {filename}")  # Debugging-Log
     return server.send_static_file(filename)
 
 

@@ -12,7 +12,8 @@ from plotly.subplots import make_subplots
 current_year = datetime.now().year
 
 def get_luftqualitaet_data():
-    query = """
+    aktuelles_jahr = datetime.today().year
+    query = f"""
                  SELECT schadstoff.kuerzel AS schadstoff_kuerzel, schadstoff.name AS schadstoff_name, 
                  zeitintervall.kuerzel AS zeitintervall_kuerzel, zeitintervall.langname AS zeitintervall_name,
                  luftqualitaet.wert, luftqualitaet.zeitpunkt
@@ -20,6 +21,7 @@ def get_luftqualitaet_data():
                  JOIN schadstoff ON luftqualitaet.schadstoff_ident = schadstoff.ident
                  JOIN zeitintervall ON luftqualitaet.zeitintervall_ident = zeitintervall.ident
                  JOIN einheit ON schadstoff.einheit_ident = einheit.ident
+                 WHERE EXTRACT('year' from luftqualitaet.zeitpunkt) = {aktuelles_jahr}
             """
     df = make_query_df(query)
     df.dropna(inplace = True)
@@ -43,14 +45,16 @@ def get_grenzwerte():
 
 def get_verkehrsinfo():
     # Gleitender Durchschnitt, wie es bei den Luft-Daten der Fall ist 
-    query = """
+    aktuelles_jahr = datetime.today().year
+    query = f"""
             SELECT freeflowtraveltime/currenttraveltime AS ratio_traveltime, 
             AVG(currentspeed/freeflowspeed ) OVER (
                 ORDER BY zeitpunkt
                 ROWS BETWEEN 11 PRECEDING AND CURRENT ROW
             ) AS ratio_speed, wetterstation_ident, zeitpunkt
             FROM verkehr
-            WHERE wetterstation_ident = 6
+            WHERE EXTRACT('year' FROM verkehr.zeitpunkt) = {aktuelles_jahr}
+                AND wetterstation_ident = 6
             """
     df = make_query_df(query)
     df.sort_values("zeitpunkt", inplace=True)
