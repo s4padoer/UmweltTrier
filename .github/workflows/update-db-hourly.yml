@@ -1,7 +1,7 @@
 name: Update Supabase DB (TomTom)
 on:
   schedule:
-    - cron: '0 2 * * *'  # Täglich um 2 Uhr UTC
+    - cron: '0 * * * *'  # Täglich um 2 Uhr UTC
   workflow_dispatch:  # Manuell triggern
 jobs:
   update:
