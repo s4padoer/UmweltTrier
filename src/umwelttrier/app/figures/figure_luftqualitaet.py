@@ -2,6 +2,7 @@ from ..utils.load_data import make_query_df
 from sqlalchemy import text
 from datetime import datetime
 
+import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -112,9 +113,13 @@ def get_alternative_luftqualitaet_plot():
     )
 
     # Unterer Plot: Verkehrsdaten als Balkendiagramm (täglich aggregiert)
+    # Berechnung der Balkenbreite, um die gesamte Breite eines Tages einzunehmen
+    bar_width = 86400000  # 1 Tag in Millisekunden (für Plotly-Datetime-Achse)
+
     fig.add_trace(
         go.Bar(x=df_verkehr['date'], y=df_verkehr['ratio_traveltime'],
-               name='Verhältnis freie / aktuelle Reisezeit', marker_color='red'),
+               name='Verhältnis freie / aktuelle Reisezeit', marker_color='red',
+               width=bar_width),
         row=2, col=1,
         secondary_y=False
     )
@@ -155,6 +160,14 @@ def get_alternative_luftqualitaet_plot():
 
     # X-Achse anpassen
     fig.update_xaxes(tickformat='%d.%m.%y', row=2, col=1)
+
+    # Synchronisierung der x-Achsenbereiche
+    # Konvertierung der Datumsangaben in ein einheitliches Format
+    min_date = min(df_feinstaub['zeitpunkt'].min(), pd.to_datetime(df_verkehr['date'].min()))
+    max_date = max(df_feinstaub['zeitpunkt'].max(), pd.to_datetime(df_verkehr['date'].max()))
+
+    fig.update_xaxes(range=[min_date, max_date], row=1, col=1)
+    fig.update_xaxes(range=[min_date, max_date], row=2, col=1)
 
     return fig
 
