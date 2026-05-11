@@ -1,7 +1,7 @@
 name: Update Supabase DB (Sentinel)
 on:
-  schedule:
-    - cron: '0 2 * * *'  # Täglich um 2 Uhr UTC
+  #schedule:
+  #  - cron: '1 * * * *'  # Täglich um 2 Uhr UTC
   workflow_dispatch:  # Manuell triggern
 jobs:
   update:
