@@ -30,7 +30,7 @@ def main():
         sys.exit()
 
     request = DwdObservationRequest(
-        parameters=DwdObservationMetadata.daily.kl.temperature_air_mean_2m,
+        parameters=[DwdObservationMetadata.daily.kl.temperature_air_mean_2m],
         start_date=startDate,
         end_date=gestern
     )

@@ -80,7 +80,7 @@ def main():
                                                    wert = df_niederschlag["value"],
                                                    zeitpunkt = df_niederschlag["date"])
     
-        df_niederschlag = df_niederschlag.drop(["dataset", "value", "quality", "date", "parameter"])
+        df_niederschlag = df_niederschlag.drop(["dataset", "value", "quality", "date", "parameter", "resolution"])
         df_niederschlag = df_niederschlag.with_columns(
             wetterstation_ident=df_niederschlag["station_id"].map_elements(lambda x: wetterstation_petrisberg if x =='05100' else wetterstation_zewen, return_dtype=int),
             produkt_ident = produkt.ident.iloc[0],
