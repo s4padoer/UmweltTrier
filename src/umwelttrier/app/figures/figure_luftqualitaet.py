@@ -42,7 +42,6 @@ def get_grenzwerte():
     df = make_query_df(query)
     return df
 
-
 def get_verkehrsinfo():
     # Gleitender Durchschnitt, wie es bei den Luft-Daten der Fall ist 
     aktuelles_jahr = datetime.today().year
@@ -58,34 +57,106 @@ def get_verkehrsinfo():
             """
     df = make_query_df(query)
     df.sort_values("zeitpunkt", inplace=True)
-    return df
 
+    # Aggregieren der Daten über einen Zeitraum (z. B. täglich)
+    df['date'] = df['zeitpunkt'].dt.date
+    df_aggregated = df.groupby('date').agg({
+        'ratio_traveltime': 'mean',
+        'ratio_speed': 'mean'
+    }).reset_index()
+    return df_aggregated
 
 def get_alternative_luftqualitaet_plot():
     df_feinstaub, df_ozon, df_kohlenmonoxid = get_luftqualitaet_data()
     df_verkehr = get_verkehrsinfo()
-    fig = get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid)
-    fig.add_trace( go.Scatter(x=df_verkehr['zeitpunkt'], y=df_verkehr['ratio_traveltime'], 
-                   name='Verhältnis freie / aktuelle Reisezeit', line=dict(color='red'),
-                   connectgaps=False,
-                    hovertemplate='%{y:.1f}',
-                   ),
-        secondary_y=True)
-    fig.update_layout(
-    title_text="Luftqualität und Verkehrsdaten",
-    xaxis_title="Zeit",
-    yaxis_title="µg/m³",
-    yaxis2_title="mg/m³",
-    yaxis3=dict(
-        title="Ratio freie vs. aktuelle Reisezeit / Geschwindigkeit",
-        anchor="free",
-        overlaying="y",
-        side="right",
-        position=1
-        )
-    )
-    return fig
 
+    # Erstellen einer Figur mit zwei Subplots, die dieselbe x-Achse teilen
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.1,
+        subplot_titles=("Luftqualitätsdaten", "Verkehrsdaten (Balkendiagramm, täglich aggregiert)"),
+        specs=[[{"secondary_y": True}], [{"secondary_y": False}]]
+    )
+
+    # Oberer Plot: Luftqualitätsdaten
+    # Feinstaub-Plot (linke y-Achse)
+    fig.add_trace(
+        go.Scatter(x=df_feinstaub['zeitpunkt'], y=df_feinstaub['wert'], 
+                   name='Feinstaub', line=dict(color='blue'),
+                   connectgaps=False,
+                    hovertemplate='%{y:.1f} µg/m³'),
+        row=1, col=1,
+        secondary_y=False
+    )
+
+    # Ozon-Plot (linke y-Achse)
+    fig.add_trace(
+        go.Scatter(x=df_ozon['zeitpunkt'], y=df_ozon['wert'], 
+                   name='Ozon', line=dict(color='green'),
+                   connectgaps=False,
+                    hovertemplate='%{y:.1f} µg/m³'),
+        row=1, col=1,
+        secondary_y=False
+    )
+
+    # Kohlenmonoxid-Plot (rechte y-Achse)
+    fig.add_trace(
+        go.Scatter(x=df_kohlenmonoxid['zeitpunkt'], y=df_kohlenmonoxid['wert'], 
+                   name='Kohlenmonoxid', line=dict(color='orange'),
+                   connectgaps=False,
+                    hovertemplate='%{y:.1f} mg/m³',
+                   ),
+        row=1, col=1,
+        secondary_y=True
+    )
+
+    # Unterer Plot: Verkehrsdaten als Balkendiagramm (täglich aggregiert)
+    fig.add_trace(
+        go.Bar(x=df_verkehr['date'], y=df_verkehr['ratio_traveltime'],
+               name='Verhältnis freie / aktuelle Reisezeit', marker_color='red'),
+        row=2, col=1,
+        secondary_y=False
+    )
+    
+    # Layout anpassen
+    fig.update_layout(
+        title_text="Luftqualität und Verkehrsdaten",
+        height=800,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        hovermode="x unified"
+    )
+    
+    # Linke Y-Achse des oberen Plots anpassen (Feinstaub und Ozon)
+    fig.update_yaxes(
+        title_text='Feinstaub und Ozon (µg/m³)',
+        secondary_y=False,
+        row=1, col=1
+    )
+    
+    # Rechte Y-Achse des oberen Plots anpassen (Kohlenmonoxid)
+    fig.update_yaxes(
+        title_text='Kohlenmonoxid (mg/m³)',
+        secondary_y=True,
+        row=1, col=1
+    )
+
+    # Y-Achse des unteren Plots anpassen (Verkehrsdaten)
+    fig.update_yaxes(
+        title_text='Verhältnis freie / aktuelle Reisezeit',
+        row=2, col=1
+    )
+
+    # X-Achse anpassen
+    fig.update_xaxes(tickformat='%d.%m.%y', row=2, col=1)
+
+    return fig
 
 def get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid):
     # Erstellen Sie eine Figure mit Subplots
@@ -151,7 +222,6 @@ def get_base_plot(df_feinstaub, df_ozon, df_kohlenmonoxid):
     fig.update_yaxes(title_text="mg/m³", secondary_y=True)
     return fig
 
-
 def get_luftqualitaet_plot():
     
     df_feinstaub, df_ozon, df_kohlenmonoxid = get_luftqualitaet_data()
@@ -211,4 +281,3 @@ def get_luftqualitaet_plot():
     )
     return fig
 
-    
