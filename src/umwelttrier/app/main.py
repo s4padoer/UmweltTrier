@@ -13,7 +13,7 @@ from dash.dependencies import Input, Output, State
 server = Flask(__name__)
 server.static_folder = 'images'
 app = Dash("Umwelt- und Klimadaten aus Trier", server=server, suppress_callback_exceptions=True, assets_folder='assets')
-
+app.title = "Trierer Klima- und Umweltdaten"
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     dcc.Store(id='previous-pathname'),
