@@ -17,6 +17,8 @@ jobs:
       with:
         enable-cache: true
         version: latest
+    - name: Install package dependencies
+      run: uv pip install --system -r <(grep -E '^[a-zA-Z]' pyproject.toml | grep -v '^name' | grep -v '^version' | grep -v '^requires-python' | awk -F'=' '{print $1}' | tr '\n' ' ')
     - name: Install package
       run: uv pip install --system -e .
     - name: Run update script
@@ -30,4 +32,4 @@ jobs:
     - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
