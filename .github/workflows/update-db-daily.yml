@@ -18,12 +18,14 @@ jobs:
         enable-cache: true
         version: latest
     - name: Install package
-      run: uv pip install --system -e src/umwelttrier/apis
+      run: uv pip install --system -e src/umwelttrier/apis &&
+           python -c "import umwelttrier.apis; print('Paket erfolgreich installiert:', umwelttrier.apis.__file__)"
     - name: Run update script
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: python -m api_pegelonline &&
+      run: python -c "import umwelttrier.apis.api_pegelonline; print('Modul gefunden')" && 
+           python -m api_pegelonline &&
            python -m api_umweltbundesamt && 
            python -m api_wetterdienst_niederschlag && 
            python -m api_wetterdienst_temperatur
