@@ -17,10 +17,8 @@ jobs:
       with:
         enable-cache: true
         version: latest
-    - name: Install package dependencies
-      run: uv pip install --system -r <(grep -E '^[a-zA-Z]' pyproject.toml | grep -v '^name' | grep -v '^version' | grep -v '^requires-python' | awk -F'=' '{print $1}' | tr '\n' ' ')
     - name: Install package
-      run: uv pip install --system -e .
+      run: uv pip install --system -e src/umwelttrier/apis
     - name: Run update script
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -32,4 +30,4 @@ jobs:
     - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('src/umwelttrier/apis/pyproject.toml') }}
